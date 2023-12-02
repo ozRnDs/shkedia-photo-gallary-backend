@@ -1,0 +1,15 @@
+services:
+  auth-api:
+    image: public.ecr.aws/q2n5r5e8/ozrnds/shkedia-photo-upload-service:${UPLOAD_SERVICE_VERSION}
+    container_name: upload_api
+    env_file: .local/upload_service.env
+    environment:
+      - JWT_KEY_LOCATION
+      - TOKEN_TIME_PERIOD
+    expose:
+      - "5000"
+    ports:
+      - "4432:5000"
+    volumes:
+      - ${HOST_MOUNT}:/temp
+    restart: always

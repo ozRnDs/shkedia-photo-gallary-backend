@@ -1,0 +1,30 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Main",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/src",
+            // "program": "Uvicorn main:app --host 0.0.0.0 --port 80", //./src/main.py",
+            "module": "uvicorn",
+            "args": ["main:app","--reload","--host=0.0.0.0","--port=5000"],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "JWT_KEY_LOCATION": "/temp/jwt_token",
+                "TOKEN_TIME_PERIOD": "1",
+                "PUBLIC_KEY_LOCATION": "/temp/data.pub",
+                "PRIVATE_KEY_LOCATION": "/temp/data"
+            }
+        }
+    ]
+}
