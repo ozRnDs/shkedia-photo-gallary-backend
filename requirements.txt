@@ -1,2 +1,5 @@
 Django
 requests
+pydantic
+cryptography
+pillow
