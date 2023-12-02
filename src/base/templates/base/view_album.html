@@ -1,0 +1,55 @@
+{% extends 'main.html' %}
+
+{% block content %}
+
+<div class="container-fluid tm-container-content tm-mt-60">
+    <div class="row mb-4">
+        <h2 class="col-6 tm-text-primary">
+            {{ album.name }}
+        </h2>
+        <div class="col-6 d-flex justify-content-end align-items-center">
+            <form action="" class="tm-text-primary">
+                Page <input type="text" value="{{ page }}" size="1" class="tm-input-paging tm-text-primary"> of {{ pages_list|length }}
+            </form>
+        </div>
+    </div>
+
+    <div class="row tm-mb-90 tm-gallery">
+        {% for media in media_list %}
+    
+        <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 mb-5">
+            <figure class="effect-ming tm-video-item">
+                <img src="data:image/png;base64,{{ media.thumbnail }}" alt="Image" class="img-fluid">
+                <figcaption class="d-flex align-items-center justify-content-center">
+                    <h2>{{ media. }}</h2>
+                    <a href="{% url 'media_view' album_name page media.media_id %}">View more</a>
+                </figcaption>                    
+            </figure>
+            <div class="d-flex justify-content-between tm-text-gray">
+                <span class="tm-text-gray-light">{{ media.created_on|date:"d/m H:i" }}</span>
+                <span>{{ media.media_size_bytes|filesizeformat }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row tm-mb-90">
+        <div class="col-12 d-flex justify-content-between align-items-center tm-paging-col">
+            <a href="javascript:void(0);" class="btn btn-primary tm-btn-prev mb-2 disabled">Previous</a>
+            <div class="tm-paging d-flex">
+                {% for item in pages_list %}
+                    {% if item == page %}
+                        <a href="{% url 'album_view' album_name item %}" class="active tm-paging-link">{{ item }}</a>
+                    {% else %}
+                        <a href="{% url 'album_view' album_name item %}" class="tm-paging-link">{{ item }}</a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            <a href="javascript:void(0);" class="btn btn-primary tm-btn-next">Next Page</a>
+        </div>            
+    </div>
+</div> <!-- container-fluid, tm-container-content -->
+
+
+
+{% endblock %}
