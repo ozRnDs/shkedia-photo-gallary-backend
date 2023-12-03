@@ -63,7 +63,8 @@ def albums(request: HttpRequest, page_number):
     context = {
         "album_list": page_object.items,
         "page": page_number,
-        "pages_list": range(1,page_object.number_of_pages+1)
+        "pages_list": range(1,page_object.number_of_pages+1),
+        "search_needed": True
     }
 
     return render(request, 'base/albums.html', context)
@@ -80,8 +81,8 @@ def view_album(request: HttpRequest, album_name, page_number):
         "album_name": album_name,
         "media_list": gallery_service.decrypt_list_of_medias(page_object.items),
         "page": page_number,
-        "pages_list": range(1,page_object.number_of_pages+1)
-
+        "pages_list": range(1,page_object.number_of_pages+1),
+        "search_needed": True
     }
 
     return render(request, 'base/view_album.html', context)
@@ -92,7 +93,8 @@ def view_media(request, album_name, page_number, media_id):
     context = {
         "media": gallery_service.get_media_content(media_id=media_id),
         "album_name": album_name,
-        "page_number": page_number
+        "page_number": page_number,
+        "search_needed": True
     }
     
     return render(request, 'base/view_media.html', context)
@@ -100,4 +102,4 @@ def view_media(request, album_name, page_number, media_id):
     return HttpResponse(f"This is media number: {media_id}")
 
 def about(request):
-    return HttpResponse('About page')
+    return render(request, 'base/about.html', {})
