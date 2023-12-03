@@ -1,3 +1,9 @@
+## 0.1.2 (2023-12-04)
+
+### Fix
+
+- **settings**: Add CSRF_TRUSTED_ORIGINS to the django settings file
+
 ## 0.1.1 (2023-12-04)
 
 ### Fix
