@@ -9,4 +9,18 @@
         </button>
     </form>
     {% endif %}
+    {% if login_needed %}
+
+    
+        <form method="POST" action="" class="tm-search-form"> 
+            {% csrf_token %}
+
+            <input type="text" name="username" placeholder="Enter Username"  class="from-control tm-search-input"/>
+            
+            <input type="password" name="password" placeholder="Enter Password" class="from-control tm-search-input"/>
+
+            <input type="submit" value="Login" class="btn btn-outline-success tm-search-btn"/>
+        </form>
+
+    {% endif %}
 </div>

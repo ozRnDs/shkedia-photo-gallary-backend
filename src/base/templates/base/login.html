@@ -2,18 +2,4 @@
 
 {% block content %}
 
-<div style="align-content: center;">
-    <form method="POST" action="">
-        {% csrf_token %}
-
-        <label>Username:</label>
-        <input type="text" name="username" placeholder="Enter Username" />
-
-        <label>Password:</label>
-        <input type="password" name="password" placeholder="Enter Username" />
-
-        <input type="submit" value="Login"/>
-    </form>
-</div>
-
 {% endblock %}
