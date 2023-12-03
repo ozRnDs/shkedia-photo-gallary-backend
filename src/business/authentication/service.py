@@ -1,85 +1,99 @@
 
+import json
 from jose import JWTError, jwt
 from typing import Annotated
 from passlib.context import CryptContext
+
+from django.http import HttpRequest, HttpResponseRedirect, HttpResponseForbidden
 from pydantic import BaseModel
 from datetime import timedelta, datetime
 
-from db.media_service import MediaDBService
-from models.user import UserDB
+
+from business.db.user_service import UserDBService, UserRequest, User
+from business.authentication.models import Token
 
 
 class TokenData(BaseModel):
-    username: str | None = None
+    sub: str | None = None
+    auth_token: Token | None = None
+
 
 class AuthService:
     def __init__(self,
-                 db_service: MediaDBService=None,
-                 jwt_key_location: str=None,                
+                 db_user_service: UserDBService,          
                  default_expire_delta_min: int=15,
+                 jwt_key_location: str=None, 
                  jwt_algorithm: str="HS256") -> None:
-        self.db_service = db_service
+        self.user_db_service = db_user_service
+        self.default_expire_delta = timedelta(minutes=default_expire_delta_min)
         self.jwt_key_location = jwt_key_location
         self.jwt_algorithm = jwt_algorithm
-        # self.session_token: str = self.__create_session_token__(service_token_location)
-        # self.user_service_uri = user_service_uri
         self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         self.default_expire_delta = timedelta(minutes=default_expire_delta_min)
-        self.router = self.__initialize_routes__()
+        #TODO: Add jwt key generation mechanism
 
-
-    def __initialize_routes__(self):
-        router = APIRouter(tags=["Login"])
-        router.add_api_route(path="", 
-                             endpoint=self.__log_in__,
-                             methods=["post"]
-                             )
-        return router
-
-    def __log_in__(self, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
-        credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-        user = self.db_service.select(UserDB, user_name=form_data.username)
-        if user is None:
-            raise credentials_exception
-        if not self.verify_password(form_data.password, user.password):
-            raise credentials_exception
-        access_token = self.create_access_token(data={"sub": user.user_name})
-        return {"access_token": access_token, "token_type": "bearer"}
-
-    def __get_jwt_key__(self):
-        with open(self.jwt_key_location, 'r') as file:
-            temp_token = file.read()
-        return temp_token
-
+    def log_in(self, username: str, password: str, redirect_to: str="/"):
+        # credentials_exception = HTTPException(
+        #     status_code=status.HTTP_401_UNAUTHORIZED,
+        #     detail="Incorrect username or password",
+        #     headers={"WWW-Authenticate": "Bearer"},
+        # )
+        try:
+            auth_token = self.user_db_service.login_user(user=UserRequest(username=username, password=password))
+            user_data = self.user_db_service.search_user(auth_token,search_value=username)
+            gallery_token_data = TokenData(sub=user_data.user_name, auth_token=auth_token)
+            gallery_access_token = self.create_access_token(data=gallery_token_data.model_dump())
+            response = HttpResponseRedirect(redirect_to)
+            response.set_cookie("session", gallery_access_token)
+            return response
+        except Exception as err:
+            return HttpResponseForbidden("You can't be here")
     
-    def auth_request(self, request):
-        #TODO: Get user's token and check that is valid with the system's auth service
-        return True
-        pass
+    def log_out(self, redirect_to: str="/about"):
+        response = HttpResponseRedirect(redirect_to=redirect_to)
+        response.delete_cookie("session")
+        return response
 
-    def __get_user_from_token__(self, token: Annotated[str, Depends(oauth2_scheme)]):
-        credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-        return
+    def login_required(self,login_url: str):
+        def __outer_wrapper__(func):
+            def __inner_wrapper__(request: HttpRequest,*args, **kargs):
+                #TODO: Get Token from the request
+                try:
+                    token_data = self.authenticate_request(request=request)    
+                    #TODO: Send Token to the db_service to get user_id
+                    request.user.token_data = token_data
+                    user_data = self.user_db_service.search_user(token_data.auth_token,
+                                                                 search_value=token_data.sub)
+                    request.user.id = user_data.user_id
+                    #TODO: Add user_id to the request header
+                    view_response = func(request, *args, **kargs)
+                    # view_response.set_cookie("session")
+                    return view_response
+                except PermissionError as err:
+                    return HttpResponseRedirect("/login")
+            return __inner_wrapper__
+        return __outer_wrapper__
+
+
+    def authenticate_request(self, request: HttpRequest):
+
+        session_token = request.COOKIES.get("session")
+        if session_token is None:
+            raise PermissionError("No valid session")
+        return self.__get_data_from_token__(session_token)
+
+    def __get_data_from_token__(self, token: str) -> TokenData:
+        credentials_exception = PermissionError("Invalid Session Token")
         try:
             payload = jwt.decode(token, self.__get_jwt_key__(), algorithms=[self.jwt_algorithm])
             username: str = payload.get("sub")
-            if username is None:
+            auth_token: str = payload.get("auth_token")
+            if username is None or auth_token is None:
                 raise credentials_exception
-            token_data = TokenData(username=username)
+            token_data = TokenData(sub=username, auth_token=Token(**auth_token))
+            return token_data
         except JWTError:
             raise credentials_exception
-        user = self.db_service.select(UserDB, user_name=username)
-        if user is None:
-            raise credentials_exception
-        return user
     
     def verify_password(self, plain_password, hashed_password):
         return self.pwd_context.verify(plain_password, hashed_password)
@@ -93,3 +107,8 @@ class AuthService:
         to_encode.update({"exp": expire})
         encoded_jwt = jwt.encode(to_encode, self.__get_jwt_key__() ,algorithm=self.jwt_algorithm)
         return encoded_jwt
+    
+    def __get_jwt_key__(self):
+        with open(self.jwt_key_location, 'r') as file:
+            temp_token = file.read()
+        return temp_token
