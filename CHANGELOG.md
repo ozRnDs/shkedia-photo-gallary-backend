@@ -1,3 +1,9 @@
+## 0.1.3 (2023-12-04)
+
+### Fix
+
+- **templates/search**: Putting CSRF token in the login form
+
 ## 0.1.2 (2023-12-04)
 
 ### Fix
