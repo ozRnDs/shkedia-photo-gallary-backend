@@ -27,7 +27,7 @@ class Page(BaseModel):
 class MediaView(MediaDB):
     thumbnail: str
     user: User | None = None
-    device: Device| None = None
+    device: Device | None = None
 
 class CacheMemory(BaseModel):
     albums_list: List[Album] = []
@@ -150,9 +150,12 @@ class MediaGalleryService():
         return MediaView(thumbnail=image,**media.model_dump())
 
 
-    def get_media_content(self, media_id) -> MediaView:
+    def get_media_content(self, token, media_id) -> MediaView:
         media_content = [media for media in self.cache_object.list_of_images if media.media_id==media_id][-1]
         if media_content is None:
             raise Exception("Could find media")
-        return self.__decrypt_single_media(media_content)
+        media = self.__decrypt_single_media(media_content) 
+        media.user = self.user_db_service.search_user(token, search_field="user_id", search_value=media.owner_id)
+        media.device = self.user_db_service.search_device(token, device_id=media.device_id)
+        return media
         
