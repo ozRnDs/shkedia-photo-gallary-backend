@@ -69,7 +69,7 @@ class MediaGalleryService():
             self.cache_object = CacheMemory(retention_time_minutes=1000)
             self.__load_cache_locally__(file_location=local_cache_location)
         else:
-            self.cache_object = CacheMemory()
+            self.cache_object = CacheMemory(retention_time_minutes=caching_retention_time_minutes)
             self.__load_cache_locally__()
 
     def __load_cache_locally__(self, file_location):
