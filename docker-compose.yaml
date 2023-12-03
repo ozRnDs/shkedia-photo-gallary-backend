@@ -1,11 +1,24 @@
 services:
   auth-api:
-    image: public.ecr.aws/q2n5r5e8/ozrnds/shkedia-photo-gallery-backend:${gallery-backend_VERSION}
+    image: public.ecr.aws/q2n5r5e8/ozrnds/shkedia-photo-gallery-backend:${GALLERY_SERVICE_VERSION}
     container_name: gallery_backend
-    env_file: .local/gallery_backend.env
+    env_file: .local/gallery_service_${ENVIRONMENT}.env
     environment:
       - JWT_KEY_LOCATION
       - TOKEN_TIME_PERIOD
+      - ENVIRONMENT
+      - MEDIA_DB_HOST
+      - MEDIA_DB_PORT
+      - MEDIA_REPO_HOST
+      - MEDIA_REPO_PORT
+      - USER_DB_HOST
+      - USER_DB_PORT
+      - THUMBNAIL_MAX_HEIGHT
+      - THUMBNAIL_MAX_WIDTH
+      - PUBLIC_KEY_LOCATION
+      - PRIVATE_KEY_LOCATION=""
+      - LOCAL_CACHE_LOCATION
+      - DEBUG
     expose:
       - "5000"
     ports:
