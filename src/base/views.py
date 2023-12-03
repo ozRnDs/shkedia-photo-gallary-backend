@@ -45,13 +45,9 @@ def home(request: HttpRequest):
 @auth_service.login_required()
 def albums(request: HttpRequest, page_number):
 
-    # token = request.headers.get("Auzthorization")
-    token = {
-            "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0X3VzZXIiLCJleHAiOjE3MDE1MjM5MzJ9.HICNe2oTdph55YRxXZFnKQcFsDs1lMdMkA3C4pdgqSY",
-            "token_type": "bearer"
-            }
-    gallery_service.__refresh_cache__(token=Token(**token),
-                                      user_id="8c0e1d9d-9ade-4881-9196-e9ae2c33383f")
+
+    gallery_service.__refresh_cache__(token=request.user.token_data.auth_token,
+                                      user_id=request.user.id)
     
     album_list: List[Album] = gallery_service.albums_list
 
@@ -91,7 +87,8 @@ def view_album(request: HttpRequest, album_name, page_number):
 def view_media(request, album_name, page_number, media_id):
 
     context = {
-        "media": gallery_service.get_media_content(media_id=media_id),
+        "media": gallery_service.get_media_content(token=request.user.token_data.auth_token,
+                                                media_id=media_id),
         "album_name": album_name,
         "page_number": page_number,
         "search_needed": True
