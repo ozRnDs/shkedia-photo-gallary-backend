@@ -6,6 +6,7 @@ urlpatterns = [
 
     path('about', views.about, name="about"),
     path('login/', views.login_page, name="login"),
+    path('logout/', views.logout_page, name="logout"),
 
     path('albums/<int:page_number>', views.albums, name="albums"),
     path('album/<str:album_name>/<int:page_number>', views.view_album, name="album_view"),
