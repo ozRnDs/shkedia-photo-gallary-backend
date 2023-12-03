@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 
 from business.config import app_config
 from business.gallery.service import MediaGalleryService ,Album, MediaView
-from business.authentication.models import Token
+from business.authentication.service import Token, AuthService
 from business.db.media_service import MediaDBService
 from business.encryption.service import DecryptService
 from business.db.user_service import UserDBService, UserRequest
@@ -13,6 +13,9 @@ from typing import List
 decrypt_service = DecryptService(private_key_location=app_config.PRIVATE_KEY_LOCATION)
 media_db_service = MediaDBService(host=app_config.MEDIA_DB_HOST, port=app_config.MEDIA_DB_PORT)
 user_db_service = UserDBService(host=app_config.USER_DB_HOST, port=app_config.USER_DB_PORT)
+auth_service = AuthService(db_user_service=user_db_service,
+                           jwt_key_location=app_config.JWT_KEY_LOCATION,
+                            )
 gallery_service = MediaGalleryService(decrypt_service=decrypt_service,
                                       user_db_service=user_db_service,
                                       media_db_service=media_db_service,
@@ -23,24 +26,23 @@ def login_page(request: HttpRequest):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        token = user_db_service.login_user(user=UserRequest(username=username, password=password))
+        return auth_service.log_in(username=username, password=password, redirect_to="/")
 
-        response = HttpResponseRedirect("/")
-        response.set_cookie("session", token.access_token)
-        return response
+
         
     context= {}
     return render(request, 'base/login.html', context)
 
 def logout_page(request: HttpRequest):
-    response = HttpResponseRedirect("/")
-    response.delete_cookie("session")
-    return response
+    return auth_service.log_out()
 
+
+@auth_service.login_required()
 def home(request: HttpRequest):
 
     return albums(request, page_number=1)
 
+@auth_service.login_required()
 def albums(request: HttpRequest, page_number):
 
     # token = request.headers.get("Auzthorization")
@@ -66,6 +68,7 @@ def albums(request: HttpRequest, page_number):
 
     return render(request, 'base/albums.html', context)
 
+@auth_service.login_required()
 def view_album(request: HttpRequest, album_name, page_number):
 
     chosen_album = [album for album in gallery_service.albums_list if album.name == album_name][-1]
@@ -83,6 +86,7 @@ def view_album(request: HttpRequest, album_name, page_number):
 
     return render(request, 'base/view_album.html', context)
 
+@auth_service.login_required()
 def view_media(request, album_name, page_number, media_id):
 
     context = {
