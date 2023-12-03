@@ -420,7 +420,7 @@ figure.effect-ming:hover figcaption { background-color: rgba(58,52,42,0); }
 figure.effect-ming:hover img { opacity: 0.4; }
 
 .tm-footer-links li {
-    list-style: none;
+    list-style: inside;
     margin-bottom: 5px;    
 }
 
@@ -500,6 +500,10 @@ figure.effect-ming:hover img { opacity: 0.4; }
 }
 
 .tm-about-img-text { max-width: 940px; }
+
+.tm-about-img-text li { 
+    color: #999;
+}
 
 /* Contact */
 select.form-control { border-radius: 0; }

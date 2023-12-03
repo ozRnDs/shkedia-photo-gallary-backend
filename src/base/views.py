@@ -104,3 +104,7 @@ def view_media(request, album_name, page_number, media_id):
 @auth_service.is_authenticated()
 def about(request):
     return render(request, 'base/about.html', {})
+
+@auth_service.is_authenticated()
+def about_media(request):
+    return render(request, 'base/about_media.html', {})
