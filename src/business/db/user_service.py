@@ -9,15 +9,37 @@ from business.authentication.models import Token
 from business.models.user import UserDB, UserRequest, User
 from business.models.device import Device, DeviceRequest
 
+
+def retry(max_retries=5):
+    def __external_wrapper__(fun):
+        def __internal_wrapper__(*args, **kargs):
+            retry_counter = 0
+
+            while retry_counter<max_retries:
+                try:
+                    return fun(*args, **kargs)
+                except PermissionError as err:
+                    raise err
+                except Exception as err:
+                    retry_counter+=1
+            logger.error(f"Error repeated: {max_retries} times: {str(err)}")
+            raise err
+
+        return __internal_wrapper__
+    return __external_wrapper__
+
+
 class UserDBService:
 
     def __init__(self,
                  host: str,
                  port: str | int,
-                 connection_timeout: int=10
+                 connection_timeout: int=10,
+                 max_retries: int = 5
                  ) -> None:
         self.service_url = f"http://{host}:{str(port)}"
         self.connection_timeout = connection_timeout
+        self.max_retries = max_retries
 
     def is_ready(self):
         raise NotImplementedError("Is it necessary?")
@@ -37,6 +59,7 @@ class UserDBService:
             return User(**insert_response)
         raise Exception(insert_response.json()["detail"])
 
+    @retry(max_retries=5) # TODO: Think how to set it from the config
     def login_user(self, user: UserRequest) -> Token:
         
         login_url = self.service_url+"/login"
@@ -46,14 +69,18 @@ class UserDBService:
         if login_response.status_code == 200:
             return Token(**login_response.json())
         if login_response.status_code == 401:
-            raise Exception("Permission Denied")
+            raise PermissionError("Permission Denied")
         raise Exception(login_response.json()["detail"])
 
-    def search_user(self, token: Token, **kargs) -> User:
+    def search_user(self, token: Token, search_value: str, search_field: str="user_name") -> User:
         
         search_user_url = self.service_url+"/user"
 
-        search_user_response = requests.get(search_user_url, params=kargs, headers=token.get_token_as_header())
+        params = { "search_field": search_field,
+                  "search_value": search_value
+                  }
+
+        search_user_response = requests.get(search_user_url, params=params, headers=token.get_token_as_header())
 
         if search_user_response.status_code == 200:
             return User(**search_user_response.json())
@@ -96,4 +123,3 @@ class UserDBService:
         if insert_device_response.status_code == 200:
             return Device(**insert_device_response.json())
         raise Exception(insert_device_response.json()["detail"])
-
