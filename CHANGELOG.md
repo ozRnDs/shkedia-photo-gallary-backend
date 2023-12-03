@@ -1,3 +1,10 @@
+## 0.1.1 (2023-12-04)
+
+### Fix
+
+- **view_media-and-static/css**: Created special class for the images on displayed
+- **templates/search**: Deleted csrf token
+
 ## 0.1.0 (2023-12-03)
 
 ### Feat

@@ -1,6 +1,6 @@
 services:
   auth-api:
-    image: public.ecr.aws/q2n5r5e8/ozrnds/shkedia-photo-gallery-backend:${GALLERY_SERVICE_VERSION}
+    image: public.ecr.aws/q2n5r5e8/ozrnds/shkedia-photo-gallery-service:${GALLERY_SERVICE_VERSION}
     container_name: gallery_backend
     env_file: .local/gallery_service_${ENVIRONMENT}.env
     environment:
@@ -20,9 +20,9 @@ services:
       - LOCAL_CACHE_LOCATION
       - DEBUG
     expose:
-      - "5000"
+      - "8000"
     ports:
-      - "4432:5000"
+      - "4434:8000"
     volumes:
       - ${HOST_MOUNT}:/temp
     restart: always
