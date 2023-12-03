@@ -29,6 +29,8 @@ class ApplicationConfiguration:
     PRIVATE_KEY_LOCATION: str = ".local/data"
 
     LOCAL_CACHE_LOCATION: str = "/temp/local_cache.pickle"
+
+    DEBUG: int = 1
     
     def __init__(self) -> None:
         self.logger = logging.getLogger()

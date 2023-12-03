@@ -9,6 +9,8 @@ from business.encryption.service import DecryptService
 from business.db.user_service import UserDBService, UserRequest
 from typing import List
 
+debug_mode = False if app_config.DEBUG == 0 else True
+
 # Create your views here.
 decrypt_service = DecryptService(private_key_location=app_config.PRIVATE_KEY_LOCATION)
 media_db_service = MediaDBService(host=app_config.MEDIA_DB_HOST, port=app_config.MEDIA_DB_PORT)
@@ -19,7 +21,8 @@ auth_service = AuthService(db_user_service=user_db_service,
 gallery_service = MediaGalleryService(decrypt_service=decrypt_service,
                                       user_db_service=user_db_service,
                                       media_db_service=media_db_service,
-                                      local_cache_location=app_config.LOCAL_CACHE_LOCATION)
+                                      local_cache_location=app_config.LOCAL_CACHE_LOCATION,
+                                      debug_mode=debug_mode)
 
 def login_page(request: HttpRequest):
     if request.method == 'POST':
