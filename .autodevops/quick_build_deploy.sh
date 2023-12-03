@@ -24,4 +24,4 @@ export ${COMPONENT_NAME^^}_SERVICE_VERSION=$SERVICE_VERSION
 
 echo Deploy with env file $DEPLOYMENT_ENV
 
-docker compose --env-file ${DEPLOYMENT_ENV} up -d
+# docker compose --env-file ${DEPLOYMENT_ENV} up -d
