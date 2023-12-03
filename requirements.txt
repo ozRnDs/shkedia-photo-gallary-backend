@@ -3,3 +3,5 @@ requests
 pydantic
 cryptography
 pillow
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]
