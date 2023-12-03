@@ -71,9 +71,27 @@ class AuthService:
             return __inner_wrapper__
         return __outer_wrapper__
 
+    def is_authenticated(self):
+        def __outer_wrapper__(func):
+            def __inner_wrapper__(request: HttpRequest,*args,**kargs):
+                try:
+                    token_data = self.authenticate_request(request=request)
+                    request.user.token_data = token_data
+                    user_data = self.user_db_service.search_user(token_data.auth_token,
+                                                                    search_value=token_data.sub)
+                    request.user.id = user_data.user_id
+                except Exception:
+                    pass
+
+                view_response = func(request, *args, **kargs)
+
+                return view_response
+            return __inner_wrapper__
+        return __outer_wrapper__
+
+
 
     def authenticate_request(self, request: HttpRequest):
-
         session_token = request.COOKIES.get("session")
         if session_token is None:
             raise PermissionError("No valid session")

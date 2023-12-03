@@ -30,7 +30,7 @@ def login_page(request: HttpRequest):
 
 
         
-    context= {}
+    context= { "login_needed": True}
     return render(request, 'base/login.html', context)
 
 def logout_page(request: HttpRequest):
@@ -101,5 +101,6 @@ def view_media(request, album_name, page_number, media_id):
 
     return HttpResponse(f"This is media number: {media_id}")
 
+@auth_service.is_authenticated()
 def about(request):
     return render(request, 'base/about.html', {})
