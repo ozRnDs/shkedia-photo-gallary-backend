@@ -3,28 +3,44 @@
 {% block content %}
 
 <div class="container-fluid tm-container-content tm-mt-60">
+
+    {% if media.media_description and not media.media_description == '-' %}
     <div class="row mb-4">
-        <h2 class="col-12 tm-text-primary">Photo title goes here</h2>
+        <h2 class="col-12 tm-text-primary">{{ media.media_description }}</h2>
     </div>
+    {% endif %}
+
     <div class="row tm-mb-90">            
         <div class="col-xl-8 col-lg-7 col-md-6 col-sm-12">
             <img src="data:image/png;base64,{{ media.thumbnail }}" alt="Image" class="img-fluid">
         </div>
         <div class="col-xl-4 col-lg-5 col-md-6 col-sm-12">
             <div class="tm-bg-gray tm-video-details">
+                {% comment %}
                 <!-- <p class="mb-4">
                     Please support us by making <a href="https://paypal.me/templatemo" target="_parent" rel="sponsored">a PayPal donation</a>. Nam ex nibh, efficitur eget libero ut, placerat aliquet justo. Cras nec varius leo.
                 </p>
                 <div class="text-center mb-5">
                     <a href="#" class="btn btn-primary tm-btn-big">Download</a>
                 </div>                     -->
+                {% endcomment %}
                 <div class="mb-4 d-flex flex-wrap">
+                    <div class="mr-4 mb-2">
+                        <span class="tm-text-gray-dark">Owner: </span><span class="tm-text-primary">{{ media.user.user_name }}</span>
+                    </div>
+                    {% if media.device.device_name %}
+                    <div class="mr-4 mb-2">
+                        <span class="tm-text-gray-dark">Device: </span><span class="tm-text-primary">{{ media.device.device_name }}</span>
+                    </div>
+                    {% endif %}
                     <div class="mr-4 mb-2">
                         <span class="tm-text-gray-dark">Date: </span><span class="tm-text-primary">{{ media.created_on|date:"d/m/y H:i" }}</span>
                     </div>
+                    {% if media.media_width %}
                     <div class="mr-4 mb-2">
                         <span class="tm-text-gray-dark">Dimension: </span><span class="tm-text-primary">{{ media.media_width }}x{{ media.media_height }}</span>
                     </div>
+                    {% endif %}
                     <div class="mr-4 mb-2">
                         <span class="tm-text-gray-dark">Size: </span><span class="tm-text-primary">{{ media.media_size_bytes|filesizeformat }}</span>
                     </div>
@@ -49,8 +65,16 @@
                     <a href="#" class="tm-text-primary mr-4 mb-2 d-inline-block">Real Estate</a>
                 </div>
             </div>
+        </div>   
+    </div>
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center tm-paging-col">
+          <div class="col-12 d-flex justify-content-between align-items-center tm-paging-col">
+            <a href="javascript:history.back()" class="btn btn-primary tm-btn-next mb-2">Back</a>
+          </div>
         </div>
     </div>
+    {% comment %}
     <!-- <div class="row mb-4">
         <h2 class="col-12 tm-text-primary">
             Related Photos
@@ -162,6 +186,7 @@
             </div>
         </div>        
     </div> row -->
+    {% endcomment %}
 </div> <!-- container-fluid, tm-container-content -->
 
 {% endblock %}
