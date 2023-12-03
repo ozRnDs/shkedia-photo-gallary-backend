@@ -21,10 +21,13 @@ class TokenData(BaseModel):
 class AuthService:
     def __init__(self,
                  db_user_service: UserDBService,          
+                login_redirect_path: str="/login",
                  default_expire_delta_min: int=15,
                  jwt_key_location: str=None, 
                  jwt_algorithm: str="HS256") -> None:
         self.user_db_service = db_user_service
+        self.login_redirect_path = login_redirect_path
+
         self.default_expire_delta = timedelta(minutes=default_expire_delta_min)
         self.jwt_key_location = jwt_key_location
         self.jwt_algorithm = jwt_algorithm
@@ -33,11 +36,7 @@ class AuthService:
         #TODO: Add jwt key generation mechanism
 
     def log_in(self, username: str, password: str, redirect_to: str="/"):
-        # credentials_exception = HTTPException(
-        #     status_code=status.HTTP_401_UNAUTHORIZED,
-        #     detail="Incorrect username or password",
-        #     headers={"WWW-Authenticate": "Bearer"},
-        # )
+
         try:
             auth_token = self.user_db_service.login_user(user=UserRequest(username=username, password=password))
             user_data = self.user_db_service.search_user(auth_token,search_value=username)
@@ -54,23 +53,21 @@ class AuthService:
         response.delete_cookie("session")
         return response
 
-    def login_required(self,login_url: str):
+    def login_required(self):
         def __outer_wrapper__(func):
             def __inner_wrapper__(request: HttpRequest,*args, **kargs):
-                #TODO: Get Token from the request
                 try:
                     token_data = self.authenticate_request(request=request)    
-                    #TODO: Send Token to the db_service to get user_id
                     request.user.token_data = token_data
                     user_data = self.user_db_service.search_user(token_data.auth_token,
                                                                  search_value=token_data.sub)
                     request.user.id = user_data.user_id
-                    #TODO: Add user_id to the request header
+
                     view_response = func(request, *args, **kargs)
-                    # view_response.set_cookie("session")
+
                     return view_response
                 except PermissionError as err:
-                    return HttpResponseRedirect("/login")
+                    return HttpResponseRedirect(self.login_redirect_path)
             return __inner_wrapper__
         return __outer_wrapper__
 
