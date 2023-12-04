@@ -1,3 +1,9 @@
+## 0.2.1 (2023-12-05)
+
+### Fix
+
+- **GalleryService**: Manage cache for multiple users
+
 ## 0.2.0 (2023-12-05)
 
 ### Feat
