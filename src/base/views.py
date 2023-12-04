@@ -52,7 +52,7 @@ def albums(request: HttpRequest, page_number):
     gallery_service.__refresh_cache__(token=request.user.token_data.auth_token,
                                       user_id=request.user.id)
     
-    album_list: List[Album] = gallery_service.albums_list
+    album_list: List[Album] = gallery_service.albums_list_for_user(user_id=request.user.id)
 
     page_object = gallery_service.get_page_content(album_list, page_number)
 
@@ -71,7 +71,7 @@ def albums(request: HttpRequest, page_number):
 @auth_service.login_required()
 def view_album(request: HttpRequest, album_name, page_number):
 
-    chosen_album = [album for album in gallery_service.albums_list if album.name == album_name][-1]
+    chosen_album = [album for album in gallery_service.albums_list_for_user(request.user.id) if album.name == album_name][-1]
 
     page_object = gallery_service.get_page_content(chosen_album.images_list, page_number)
 
@@ -91,7 +91,7 @@ def view_media(request, album_name, page_number, media_id):
 
     context = {
         "media": gallery_service.get_media_content(token=request.user.token_data.auth_token,
-                                                media_id=media_id),
+                                                media_id=media_id, user_id=request.user.id),
         "album_name": album_name,
         "page_number": page_number,
         "search_needed": True

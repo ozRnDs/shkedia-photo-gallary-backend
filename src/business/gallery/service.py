@@ -31,7 +31,6 @@ class MediaView(MediaDB):
     device: Device | None = None
 
 class CacheMemory(BaseModel):
-    chached_users: List[str] = []
     albums_list: List[Album] = []
     list_of_images: List[MediaDB] = []
     is_working: bool = False
@@ -67,45 +66,46 @@ class MediaGalleryService():
         self.decrypt_service = decrypt_service
         self.debug_mode = debug_mode
         self.local_cache_location = local_cache_location
-        if debug_mode:
-            self.cache_object = CacheMemory(retention_time_minutes=1000)
-            self.__load_cache_locally__(file_location=local_cache_location)
-        else:
-            self.cache_object = CacheMemory(retention_time_minutes=caching_retention_time_minutes)
+        self.cache_object = {}
+        self.caching_retention = caching_retention_time_minutes
+        # if debug_mode:
+            # self.cache_object = CacheMemory(retention_time_minutes=1000)
+            # self.__load_cache_locally__(file_location=local_cache_location)
+        # else:
+            # self.cache_object = CacheMemory(retention_time_minutes=caching_retention_time_minutes)
 
-    def __load_cache_locally__(self, file_location):
-        if not os.path.exists(file_location):
-            return False
-        with open(file_location, "rb") as file:
-            self.cache_object.albums_list: List[Album] = pickle.load(file)
+    # def __load_cache_locally__(self, file_location):
+    #     if not os.path.exists(file_location):
+    #         return False
+    #     with open(file_location, "rb") as file:
+    #         self.cache_object.albums_list: List[Album] = pickle.load(file)
 
-        for album in self.cache_object.albums_list:
-            self.cache_object.list_of_images += album.images_list
-        logger.info(f"Loaded Cache from local file: {file_location}")
-        return True        
+    #     for album in self.cache_object.albums_list:
+    #         self.cache_object.list_of_images += album.images_list
+    #     logger.info(f"Loaded Cache from local file: {file_location}")
+    #     return True        
 
     def __refresh_cache__(self, token, user_id):
-        if self.debug_mode:
-            loaded_from_cache = self.__load_cache_locally__(self.local_cache_location)
-            if loaded_from_cache:
-                self.cache_object.unlock()
-                return
-        if self.cache_object.is_working:
-            while self.cache_object.is_working:
+        # if self.debug_mode:
+        #     loaded_from_cache = self.__load_cache_locally__(self.local_cache_location)
+        #     if loaded_from_cache:
+        #         self.cache_object.unlock()
+        #         return
+        if not user_id in self.cache_object:
+            self.cache_object[user_id] = CacheMemory()
+        if self.cache_object[user_id].is_working:
+            while self.cache_object[user_id].is_working:
                 time.sleep(1)
-            if user_id in self.cache_object.chached_users:
-                return
-        if self.cache_object.is_updated() and user_id in self.cache_object.chached_users:
+        if self.cache_object[user_id].is_updated():
             return
-        self.cache_object.lock()
+        self.cache_object[user_id].lock()
         logger.info(f"Loading Media from Media DB")
         search_results = self.media_db_service.search_media(token=token, owner_id=user_id, upload_status="UPLOADED")
-        self.cache_object.list_of_images=search_results.results
-        self.__group_medias_per_month__(search_results.results)
-        self.cache_object.chached_users.append(user_id)
-        logger.info(f"Loaded Media from Media DB")
+        self.cache_object[user_id].list_of_images=search_results.results
+        self.__group_medias_per_month__(search_results.results, user_id)
+        self.cache_object[user_id].unlock()
 
-    def __group_medias_per_month__(self, media_list: List[MediaDB]):
+    def __group_medias_per_month__(self, media_list: List[MediaDB], user_id:str):
         temp_album_dict = {}
 
         for media in media_list:
@@ -120,7 +120,7 @@ class MediaGalleryService():
             cover_media: MediaDB = images_list[0]
             album_thumbnail = self.decrypt_service.decrypt(cover_media.media_key, {"thumbnail": cover_media.media_thumbnail})
             album_thumbnail = ImageProcessingService.get_image_base64(album_thumbnail["thumbnail"])
-            self.cache_object.albums_list.append(Album(
+            self.cache_object[user_id].albums_list.append(Album(
                 name=album_name, date=datetime(year=cover_media.created_on.year,
                                                 month=cover_media.created_on.month,
                                                 day=1),
@@ -128,9 +128,8 @@ class MediaGalleryService():
                                                 b64_preview_image=album_thumbnail
                                                 ))
 
-    @property
-    def albums_list(self):
-        return self.cache_object.albums_list
+    def albums_list_for_user(self, user_id):
+        return self.cache_object[user_id].albums_list
 
     def get_page_content(self, items_list, page_number)-> Page:
         number_of_pages = ceil(len(items_list)/self.items_in_page)
@@ -154,8 +153,8 @@ class MediaGalleryService():
         return MediaView(thumbnail=image,**media.model_dump())
 
 
-    def get_media_content(self, token, media_id) -> MediaView:
-        media_content = [media for media in self.cache_object.list_of_images if media.media_id==media_id][-1]
+    def get_media_content(self, token, media_id, user_id) -> MediaView:
+        media_content = [media for media in self.cache_object[user_id].list_of_images if media.media_id==media_id][-1]
         if media_content is None:
             raise Exception("Could find media")
         media = self.__decrypt_single_media(media_content) 
