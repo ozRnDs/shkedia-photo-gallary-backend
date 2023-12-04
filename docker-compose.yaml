@@ -1,6 +1,6 @@
 services:
   auth-api:
-    image: public.ecr.aws/q2n5r5e8/ozrnds/shkedia-photo-gallery-service:${GALLERY_SERVICE_VERSION}
+    image: public.ecr.aws/q2n5r5e8/project-shkedia/gallery-service:${GALLERY_SERVICE_VERSION}
     container_name: gallery_backend
     env_file: .local/gallery_service_${ENVIRONMENT}.env
     environment:
