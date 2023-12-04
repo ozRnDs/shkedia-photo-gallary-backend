@@ -31,6 +31,7 @@ class MediaView(MediaDB):
     device: Device | None = None
 
 class CacheMemory(BaseModel):
+    chached_users: List[str] = []
     albums_list: List[Album] = []
     list_of_images: List[MediaDB] = []
     is_working: bool = False
@@ -92,14 +93,16 @@ class MediaGalleryService():
         if self.cache_object.is_working:
             while self.cache_object.is_working:
                 time.sleep(1)
-            return
-        if self.cache_object.is_updated():
+            if user_id in self.cache_object.chached_users:
+                return
+        if self.cache_object.is_updated() and user_id in self.cache_object.chached_users:
             return
         self.cache_object.lock()
         logger.info(f"Loading Media from Media DB")
         search_results = self.media_db_service.search_media(token=token, owner_id=user_id, upload_status="UPLOADED")
         self.cache_object.list_of_images=search_results.results
         self.__group_medias_per_month__(search_results.results)
+        self.cache_object.chached_users.append(user_id)
         logger.info(f"Loaded Media from Media DB")
 
     def __group_medias_per_month__(self, media_list: List[MediaDB]):
