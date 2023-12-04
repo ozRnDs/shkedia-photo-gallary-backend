@@ -58,7 +58,7 @@ The component is responsibly to serve the entire system to the users. Mostly the
     ```bash
     export GALLERY_BACKEND_VERSION=$(cz version -p)
     export IMAGE_NAME=shkedia-photo-gallery-backend:${GALLERY_BACKEND_VERSION}
-    export IMAGE_FULL_NAME=public.ecr.aws/q2n5r5e8/ozrnds/${IMAGE_NAME}
+    export IMAGE_FULL_NAME=public.ecr.aws/q2n5r5e8/project-shkedia/${IMAGE_NAME}
     ```
 2. Build the image
     ```bash

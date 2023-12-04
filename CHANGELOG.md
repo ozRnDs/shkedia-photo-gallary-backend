@@ -1,3 +1,13 @@
+## 0.2.0 (2023-12-05)
+
+### Feat
+
+- **templates/footer.html**: Added GitHub Link
+
+### Fix
+
+- **GalleryService**: Handle case that local file does not exists
+
 ## 0.1.3 (2023-12-04)
 
 ### Fix
