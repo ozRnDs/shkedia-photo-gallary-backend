@@ -1,3 +1,4 @@
+import os
 from pydantic import BaseModel
 from typing import List, Any
 from datetime import datetime, timedelta
@@ -70,25 +71,24 @@ class MediaGalleryService():
             self.__load_cache_locally__(file_location=local_cache_location)
         else:
             self.cache_object = CacheMemory(retention_time_minutes=caching_retention_time_minutes)
-            self.__load_cache_locally__()
 
     def __load_cache_locally__(self, file_location):
-        logger.info(f"Loading Cache from local file: {file_location}")
+        if not os.path.exists(file_location):
+            return False
         with open(file_location, "rb") as file:
             self.cache_object.albums_list: List[Album] = pickle.load(file)
 
         for album in self.cache_object.albums_list:
             self.cache_object.list_of_images += album.images_list
-        
-        # self.__group_medias_per_month__(self.cache_object.list_of_images)
-            
+        logger.info(f"Loaded Cache from local file: {file_location}")
+        return True        
 
     def __refresh_cache__(self, token, user_id):
         if self.debug_mode:
-            self.__load_cache_locally__(self.local_cache_location)
-            self.cache_object.unlock()
-            return
-        #TODO: If caching working wait
+            loaded_from_cache = self.__load_cache_locally__(self.local_cache_location)
+            if loaded_from_cache:
+                self.cache_object.unlock()
+                return
         if self.cache_object.is_working:
             while self.cache_object.is_working:
                 time.sleep(1)
@@ -96,10 +96,11 @@ class MediaGalleryService():
         if self.cache_object.is_updated():
             return
         self.cache_object.lock()
-
+        logger.info(f"Loading Media from Media DB")
         search_results = self.media_db_service.search_media(token=token, owner_id=user_id, upload_status="UPLOADED")
         self.cache_object.list_of_images=search_results.results
         self.__group_medias_per_month__(search_results.results)
+        logger.info(f"Loaded Media from Media DB")
 
     def __group_medias_per_month__(self, media_list: List[MediaDB]):
         temp_album_dict = {}
