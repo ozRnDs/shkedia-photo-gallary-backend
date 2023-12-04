@@ -1,3 +1,9 @@
+## 0.3.0 (2023-12-05)
+
+### Feat
+
+- **GalleryService,-base/views**: Create different cache for every user
+
 ## 0.2.1 (2023-12-05)
 
 ### Fix
