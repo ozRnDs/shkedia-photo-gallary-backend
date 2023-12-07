@@ -3,6 +3,7 @@ import pickle
 import os
 import time
 from pydantic import BaseModel
+from typing import List
 
 base_url = "https://picsum.photos/"
 SAVE_BASE_LOCATION = os.getcwd()+"/dev/data"
@@ -16,9 +17,7 @@ class RandomImage(BaseModel):
     url: str
     download_url: str
 
-
-
-def get_list_of_images(number_of_images):
+def get_list_of_images(number_of_images) -> List[RandomImage]:
     
     params = {
         "limit": number_of_images
@@ -37,7 +36,7 @@ def save_object(file_name, object_to_save):
     with open(file_name,"wb") as file:
         pickle.dump(object_to_save, file, protocol=pickle.HIGHEST_PROTOCOL)
 
-def load_list_of_images_from_file(file_name):
+def load_list_of_images_from_file(file_name) -> List[RandomImage]:
     with open(file_name, "rb") as file:
         list_of_images = pickle.load(file)
 
