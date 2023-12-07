@@ -4,9 +4,9 @@
 
 <div class="container-fluid tm-container-content tm-mt-60">
 
-    {% if media.media_description and not media.media_description == '-' %}
+    {% if media.name and not media.name == '-' %}
     <div class="row mb-4">
-        <h2 class="col-12 tm-text-primary">{{ media.media_description }}</h2>
+        <h2 class="col-12 tm-text-primary">{{ media.name }}</h2>
     </div>
     {% endif %}
 
