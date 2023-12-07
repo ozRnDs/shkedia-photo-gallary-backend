@@ -1,6 +1,7 @@
 {% load static %}
 
 <div class="tm-hero d-flex justify-content-center align-items-center" data-parallax="scroll" data-image-src="{% static 'img/image.png' %}">
+    {% comment %}
     {% if search_needed %}
     <form class="d-flex tm-search-form">
         <input class="form-control tm-search-input" type="search" placeholder="Search" aria-label="Search">
@@ -9,6 +10,7 @@
         </button>
     </form>
     {% endif %}
+    {% endcomment %}
     {% if login_needed %}
 
     
