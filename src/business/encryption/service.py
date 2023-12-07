@@ -36,8 +36,7 @@ class DecryptService:
         temp_dict = values_to_encrypt.copy()
         encryptor, encrypted_key = self.__prepare_encryptor__()
         for key, value in temp_dict.items():
-            temp_encrypted = encryptor.encrypt(value)
-            temp_dict[key]=zlib.compress(temp_encrypted)
+            temp_dict[key] = encryptor.encrypt(zlib.compress(value))
             if not key=="image":
                 try:
                     json.dumps(temp_dict[key])
@@ -56,8 +55,7 @@ class DecryptService:
         for key, value in temp_dict.items():
             if type(value) is str and value.startswith(self.B64_PREFIX):
                 value=base64.b64decode(temp_dict[key][len(self.B64_PREFIX):].encode())
-            temp_decompressed = zlib.decompress(value)
-            temp_dict[key] = decryptor.decrypt(temp_decompressed)
+            temp_dict[key] = zlib.decompress(decryptor.decrypt(value))
         return temp_dict
 
     def __prepare_encryptor__(self):
