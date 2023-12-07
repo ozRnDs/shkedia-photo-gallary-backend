@@ -31,6 +31,7 @@ class MediaRequest(BaseModel):
     created_on: datetime
     device_id: str
     device_media_uri: str  
+    exif: str | None = None
 
 class MediaResponse(MediaRequest):
     media_id: str = Field(default_factory=lambda:str(uuid4()))
