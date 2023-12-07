@@ -1,3 +1,18 @@
+## 0.4.0 (2023-12-08)
+
+### Feat
+
+- **MediaRequest**: Add exif field
+
+### Fix
+
+- **encryption/service**: Switch the order between the comprasion and the encryption
+
+### Refactor
+
+- **templates/search**: Hide search bar
+- **templates/view_media**: Show media name instead of description
+
 ## 0.3.0 (2023-12-05)
 
 ### Feat
