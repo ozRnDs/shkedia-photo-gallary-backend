@@ -23,13 +23,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-qxmoq(v5zugq-q3b_i!c-hdwr7@b733-w3bps_7jtlrk*76xa1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 
-CSRF_TRUSTED_ORIGINS = ['https://10.0.0.5', 'https://147.235.194.52']
+CSRF_TRUSTED_ORIGINS = ['https://10.0.0.5', 'https://www.project-shkedia.com']
 
 ALLOWED_HOSTS = [
-    "10.0.0.5"
+    "www.project-shkedia.com"
 ]
 
 
