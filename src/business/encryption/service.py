@@ -2,7 +2,7 @@ import io
 import base64
 import zlib
 import json
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
 
@@ -55,7 +55,10 @@ class DecryptService:
         for key, value in temp_dict.items():
             if type(value) is str and value.startswith(self.B64_PREFIX):
                 value=base64.b64decode(temp_dict[key][len(self.B64_PREFIX):].encode())
-            temp_dict[key] = zlib.decompress(decryptor.decrypt(value))
+            try:
+                temp_dict[key] = zlib.decompress(decryptor.decrypt(value))
+            except InvalidToken:
+                temp_dict[key] = decryptor.decrypt(zlib.decompress(value)) # For legacy support
         return temp_dict
 
     def __prepare_encryptor__(self):

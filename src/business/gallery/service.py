@@ -96,14 +96,18 @@ class MediaGalleryService():
         if self.cache_object[user_id].is_working:
             while self.cache_object[user_id].is_working:
                 time.sleep(1)
-        if self.cache_object[user_id].is_updated():
-            return
-        self.cache_object[user_id].lock()
-        logger.info(f"Loading Media from Media DB")
-        search_results = self.media_db_service.search_media(token=token, owner_id=user_id, upload_status="UPLOADED")
-        self.cache_object[user_id].list_of_images=search_results.results
-        self.__group_medias_per_month__(search_results.results, user_id)
-        self.cache_object[user_id].unlock()
+        try:
+            if self.cache_object[user_id].is_updated():
+                return
+            self.cache_object[user_id].lock()
+            logger.info(f"Loading Media from Media DB")
+            search_results = self.media_db_service.search_media(token=token, owner_id=user_id, upload_status="UPLOADED")
+            self.cache_object[user_id].list_of_images=search_results.results
+            self.__group_medias_per_month__(search_results.results, user_id)
+        except Exception as err:
+            logger.error(f"Something went wrong: {str(err)}")
+        finally:
+            self.cache_object[user_id].unlock()
 
     def __group_medias_per_month__(self, media_list: List[MediaDB], user_id:str):
         temp_album_dict = {}
