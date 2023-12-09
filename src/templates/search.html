@@ -26,6 +26,13 @@
 
     {% endif %}
 </div>
+
+
+{% if login_needed %}
+<div class="alert alert-info alert-dismissible d-flex fade show align-items-center justify-content-center" role="alert">
+    <strong>Demo Credentials -> Username: Emma | Password: Demo</strong>
+</div>
+{% endif %}
 {% if messages %}
     {% for message in messages %}
         {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
