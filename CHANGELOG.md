@@ -1,3 +1,15 @@
+## 0.4.2 (2023-12-10)
+
+### Fix
+
+- **GalleryService**: Sort the items lists according to date
+- **AuthService**: Catch and handle ValueError while checking the token
+
+### Refactor
+
+- **ViewMedia**: Diable tags in the media page
+- **Login**: Add demo flash message
+
 ## 0.4.1 (2023-12-10)
 
 ### Fix
