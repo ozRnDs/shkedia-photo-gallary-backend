@@ -69,6 +69,8 @@ class AuthService:
                     response = HttpResponseRedirect(self.login_redirect_path)
                     response.set_cookie("session", "Expired")
                     return response
+                except ValueError as err:
+                    return HttpResponseRedirect(self.login_redirect_path)
             return __inner_wrapper__
         return __outer_wrapper__
 
