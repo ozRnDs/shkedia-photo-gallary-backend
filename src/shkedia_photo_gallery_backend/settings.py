@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from pathlib import Path
 
+from business.config import app_config
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -23,13 +25,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-qxmoq(v5zugq-q3b_i!c-hdwr7@b733-w3bps_7jtlrk*76xa1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = app_config.DEBUG
 
 
 CSRF_TRUSTED_ORIGINS = ['https://10.0.0.5', 'https://www.project-shkedia.com']
 
 ALLOWED_HOSTS = [
-    "www.project-shkedia.com"
+    "www.project-shkedia.com", "10.0.0.5"
 ]
 
 
