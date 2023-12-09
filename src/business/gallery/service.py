@@ -140,7 +140,10 @@ class MediaGalleryService():
         start_index = (page_number-1)*self.items_in_page
         end_index = start_index + self.items_in_page
         end_index = len(items_list) if len(items_list) < end_index else end_index
-
+        if "date" in items_list[0].model_dump():
+            items_list.sort(key=lambda x:x.date, reverse=True)
+        if "created_on" in items_list[0].model_dump():
+            items_list.sort(key=lambda x:x.created_on, reverse=True)
         return Page(page_number=page_number,
                     number_of_pages=number_of_pages,
                     items=items_list[start_index:end_index])
