@@ -9,17 +9,20 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+            {% comment %}
             <!-- <li class="nav-item">
                 <a class="nav-link nav-link-1 active" aria-current="page" href="/">Photos</a>
             </li> -->
+            <!-- <li class="nav-item">
+                <a class="nav-link nav-link-4" href="contact.html">Contact</a>
+            </li> -->
+            {% endcomment %}
             {% if request.user.id %}
             <li class="nav-item">
                 <a class="nav-link nav-link-1" aria-current="page" href="/">Photos</a>
             </li>
             {% endif %}
-            <!-- <li class="nav-item">
-                <a class="nav-link nav-link-4" href="contact.html">Contact</a>
-            </li> -->
+
             <li class="nav-item">
                 {% if request.user.id %}
                     <a class="nav-link nav-link-2" href="{% url 'logout' %}">Logout</a>
@@ -28,10 +31,10 @@
                 {% endif %}
             </li>
             <li class="nav-item">
-                <a class="nav-link nav-link-3" href="{% url 'about_media' %}">Media's Life</a>
+                <a class="nav-link nav-link-3" href="{% url 'about' %}">About</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link nav-link-3" href="{% url 'about' %}">About</a>
+                <a class="nav-link nav-link-3" href="{% url 'about_creator' %}">Creator</a>
             </li>
         </ul>
         </div>

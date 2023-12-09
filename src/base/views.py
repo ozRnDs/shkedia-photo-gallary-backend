@@ -117,5 +117,5 @@ def about(request):
     return render(request, 'base/about.html', {})
 
 @auth_service.is_authenticated()
-def about_media(request):
-    return render(request, 'base/about_media.html', {})
+def about_creator(request):
+    return render(request, 'base/about_creator.html', {})

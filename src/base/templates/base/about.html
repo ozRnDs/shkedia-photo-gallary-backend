@@ -4,12 +4,9 @@
   <div class="row mb-4">
     <h2 class="col-12 tm-text-primary">About Project Shkedia</h2>
   </div>
-  <div class="row tm-mb-74 tm-row-1640">
-    <div class="col-lg-5 col-md-6 col-12 mb-3">
-      <img src="{% static 'img/about.jpg' %}" alt="Image" class="img-fluid" />
-    </div>
-    <div class="col-lg-7 col-md-6 col-12">
-      <div class="tm-about-img-text">
+  <div class="row tm-mb-50">
+    <div class="col-md-6 col-12">
+      <div class="tm-about-2-col">
         <p class="mb-4">
           Every day, we accumulate massive amounts of MEDIA on our phones.
           Taking pictures and videos is easy, so we often try 10 times until we
@@ -17,21 +14,30 @@
           mixed up with spam from different apps. After all that, we need to
           save copies of the important MEDIA, a never-ending process of
           screening, copying, backing up, and more. At the end of the day, the
-          entire MEDIA usually sits in a hard drive that is rarely opened.
+          entire MEDIA usually sits on a hard drive that is rarely opened.
         </p>
         <p>
-          The idea of Project Shkedia was born in 2021 as a response to the
-          challenges outlined above. It aims to 'magically' alleviate the pain
-          associated with managing MEDIA on phones through the following
+          The idea of Project Shkedia was born as a response to the
+          challenges outlined above. It aims to enable effortless and secure management of our MEDIA through the following
           features: seamless uploading of MEDIA to the cloud, efficient cleaning
           of backed-up MEDIA from the phone, combining all family MEDIA,
-          screening for spam, and suggesting deletions. Additionally, it
-          organizes MEDIA into albums based on events and people and extract
+          screening for spam, and suggesting deletions. Additionally, it will
+          organize MEDIA into albums based on events and people and extract
           INFORMATION for our benefit.
         </p>
       </div>
     </div>
+    <div class="col-md-6 col-12">
+      <div class="tm-about-2-col">
+        <!-- <h2 class="tm-text-primary mb-4">Life of a Media</h2> -->
+        <p class="mb-4">
+          <object data="{% static 'img/Infograph - Image Life.svg' %}" class="img-fluid"
+            style="background-color: white"></object>
+        </p>
+      </div>
+    </div>
   </div>
+  {% comment %}
   <!-- <div class="row tm-mb-50">
     <div class="col-md-6 col-12">
       <div class="tm-about-2-col">
@@ -85,23 +91,21 @@
       </div>
     </div>
   </div> -->
-
+  {% endcomment %}
   <div class="row tm-mb-50">
     <div class="col-md-6 col-12">
       <div class="tm-about-2-col">
         <h2 class="tm-text-primary mb-4"></h2>
         <p class="mb-4">
-          <object
-            data="{% static 'img/Infograph - System Design.svg' %}"
-            class="img-fluid"
-            style="background-color: white"
-          ></object>
+          <object data="{% static 'img/Infograph - System Design.svg' %}" class="img-fluid"
+            style="background-color: white"></object>
         </p>
       </div>
     </div>
     <div class="col-md-6 col-12">
       <div class="tm-about-2-col">
         <h2 class="tm-text-primary mb-4">Behind The Scenes</h2>
+        {% comment %}
         <!-- <p class="mb-4">
           The System is built for cloud environment and horizontal scaling in
           mind. Each component is built as a self sustained container. The
@@ -133,7 +137,7 @@
           to view and search the data. Most of the Web-UI is based on the
           template designed by TemplateMo (Catalog-Z Company).
         </p> -->
-
+        {% endcomment %}
         <p class="mb-4">
           The system is built for a cloud environment with horizontal scaling in
           mind. Each component is designed as a self-sustained container, and
@@ -162,13 +166,8 @@
           for uploading media and cleaning the phone, and a web-based
           application to view and search the data. Most of the Web-UI is based
           on the template designed by
-          <a
-            href="https://templatemo.com"
-            class="tm-text-gray"
-            rel="sponsored"
-            target="_parent"
-            >TemplateMo (Catalog-Z Company)</a
-          >.
+          <a href="https://templatemo.com" class="tm-text-gray" rel="sponsored" target="_parent">TemplateMo (Catalog-Z
+            Company)</a>.
         </p>
       </div>
     </div>
@@ -181,6 +180,7 @@
           <i class="fas fa-images fa-3x tm-text-primary"></i>
         </div>
         <h2 class="tm-text-primary mb-4">DATA</h2>
+        {% comment %}
         <!-- <p class="mb-4">
           The data of the system is separated to INFORMATION and MEDIA. The
           MEDIA are the images and videos binary files, The INFORMATION is the
@@ -196,6 +196,7 @@
           is based on it. However, We keep small copy of the MEDIA (thumbnail)
           in the DB for the everyday usage.
         </p> -->
+        {% endcomment %}
         <p class="mb-4">
           The system's data is divided into two categories: INFORMATION and
           MEDIA. MEDIA includes binary files like images and videos, while
@@ -214,6 +215,7 @@
         </p>
       </div>
     </div>
+    {% comment %}
     <!-- <div class="col-md-4 col-12">
       <div class="tm-about-3-col">
         <div class="tm-about-icon-container mb-5">
@@ -226,6 +228,7 @@
         </div>
       </div>
     </div> -->
+    {% endcomment %}
     <div class="col-md-6 col-12">
       <div class="tm-about-2-col">
         <div class="tm-about-icon-container mb-5">
@@ -233,17 +236,11 @@
         </div>
         <h2 class="tm-text-primary mb-4">AI (Future Features)</h2>
         <p class="mb-4">
-          Using various open source Deep Learning models this system can grow
-          and make the dream come true. As MLOps engineers, I have gathered
-          experience with complex analytics pipelines on Images and Videos. The
-          system is designed in a way async pipelines are easy to integrate.
-        </p>
-        <p>The following features are planned to be added:
-        <ul>
-            <li>Object Extraction - Using YoloV7 model</li>
-            <li>Face Extraction and Embeddings - Using MTCNN and VGG2 model</li>
-
-        </ul>
+          By using various open-source Deep Learning Models, this system can grow and align with the project's goals. Insights
+          about the images will be gathered to enhance search. Automatic classification of images will empower albums
+          creation. For example, YOLOv7 will extract the objects exist in the images. Using face detection and
+          recognition models, personal albums can be created. With DeepFace, face attributes and emotions can also be
+          extracted. All of these enhancements will contribute to a better search experience.
         </p>
       </div>
     </div>
