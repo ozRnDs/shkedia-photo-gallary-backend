@@ -12,9 +12,11 @@
             <!-- <li class="nav-item">
                 <a class="nav-link nav-link-1 active" aria-current="page" href="/">Photos</a>
             </li> -->
+            {% if request.user.id %}
             <li class="nav-item">
                 <a class="nav-link nav-link-1" aria-current="page" href="/">Photos</a>
             </li>
+            {% endif %}
             <!-- <li class="nav-item">
                 <a class="nav-link nav-link-4" href="contact.html">Contact</a>
             </li> -->
