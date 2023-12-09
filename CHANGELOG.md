@@ -1,3 +1,18 @@
+## 0.4.1 (2023-12-10)
+
+### Fix
+
+- **Login**: Add messages for token expired and for wrong user/password
+- **encryptionService,-galleryService**: Add support to legacy encrypted images and handle errors in the caching mechanism
+
+### Refactor
+
+- **abouts**: Creating about the creator, Rephrase the about and trying to be moree clear
+- **templates/footer**: Adding technologies to the project, Rephrase the short about
+- **main/urls**: Disable the django default admin section
+- **settings.py**: Pull the debug value from project configuration. Add dev host
+- **templates/navbar**: Show the Photos in the navbar only for logged in users
+
 ## 0.4.0 (2023-12-08)
 
 ### Feat
