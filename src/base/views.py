@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
+from django.contrib import messages
+
 
 from business.config import app_config
 from business.gallery.service import MediaGalleryService ,Album, MediaView
@@ -29,12 +31,21 @@ def login_page(request: HttpRequest):
         username = request.POST.get('username')
         password = request.POST.get('password')
 
-        return auth_service.log_in(username=username, password=password, redirect_to="/")
+        try:
+            return auth_service.log_in(username=username, password=password, redirect_to="/")
+        except PermissionError:
+            messages.add_message(request, messages.ERROR, "Wrong username or password")
+        except Exception:
+            messages.add_message(request, messages.ERROR, "Sorry, I'm not sure what went wrong")
 
-
+    if request.COOKIES.get("session") == "Expired":
+        messages.add_message(request, messages.INFO, "Your session expired. Please log in again.")
         
     context= { "login_needed": True}
-    return render(request, 'base/login.html', context)
+    response = render(request, 'base/login.html', context)
+    if request.COOKIES.get("session") == "Expired":
+        response.delete_cookie("session")
+    return response
 
 def logout_page(request: HttpRequest):
     return auth_service.log_out()

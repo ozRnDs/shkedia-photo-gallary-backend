@@ -1,5 +1,7 @@
 {% load static %}
 
+
+
 <div class="tm-hero d-flex justify-content-center align-items-center" data-parallax="scroll" data-image-src="{% static 'img/image.png' %}">
     {% comment %}
     {% if search_needed %}
@@ -13,7 +15,6 @@
     {% endcomment %}
     {% if login_needed %}
 
-    
         <form method="POST" action="" class="tm-search-form"> 
             {% csrf_token %}
             <input type="text" name="username" placeholder="Enter Username"  class="from-control tm-search-input"/>
@@ -25,3 +26,17 @@
 
     {% endif %}
 </div>
+{% if messages %}
+    {% for message in messages %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+    <div class="alert alert-warning alert-dismissible d-flex fade show align-items-center justify-content-center" role="alert">
+        <strong>{{ message }}</strong>
+    </div>
+        {% endif %}
+        {% if message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+        <div class="alert alert-info alert-dismissible d-flex fade show align-items-center justify-content-center" role="alert">
+            <strong>{{ message }}</strong>
+        </div>
+            {% endif %}
+    {% endfor %}
+{% endif %}

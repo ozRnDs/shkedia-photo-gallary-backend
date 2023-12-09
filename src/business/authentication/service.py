@@ -37,16 +37,15 @@ class AuthService:
 
     def log_in(self, username: str, password: str, redirect_to: str="/"):
 
-        try:
-            auth_token = self.user_db_service.login_user(user=UserRequest(username=username, password=password))
-            user_data = self.user_db_service.search_user(auth_token,search_value=username)
-            gallery_token_data = TokenData(sub=user_data.user_name, auth_token=auth_token)
-            gallery_access_token = self.create_access_token(data=gallery_token_data.model_dump())
-            response = HttpResponseRedirect(redirect_to)
-            response.set_cookie("session", gallery_access_token)
-            return response
-        except Exception as err:
-            return HttpResponseForbidden("You can't be here")
+
+        auth_token = self.user_db_service.login_user(user=UserRequest(username=username, password=password))
+        user_data = self.user_db_service.search_user(auth_token,search_value=username)
+        gallery_token_data = TokenData(sub=user_data.user_name, auth_token=auth_token)
+        gallery_access_token = self.create_access_token(data=gallery_token_data.model_dump())
+        response = HttpResponseRedirect(redirect_to)
+        response.set_cookie("session", gallery_access_token)
+        return response
+
     
     def log_out(self, redirect_to: str="/about"):
         response = HttpResponseRedirect(redirect_to=redirect_to)
@@ -67,7 +66,9 @@ class AuthService:
 
                     return view_response
                 except PermissionError as err:
-                    return HttpResponseRedirect(self.login_redirect_path)
+                    response = HttpResponseRedirect(self.login_redirect_path)
+                    response.set_cookie("session", "Expired")
+                    return response
             return __inner_wrapper__
         return __outer_wrapper__
 
@@ -94,7 +95,7 @@ class AuthService:
     def authenticate_request(self, request: HttpRequest):
         session_token = request.COOKIES.get("session")
         if session_token is None:
-            raise PermissionError("No valid session")
+            raise ValueError("No valid session")
         return self.__get_data_from_token__(session_token)
 
     def __get_data_from_token__(self, token: str) -> TokenData:
