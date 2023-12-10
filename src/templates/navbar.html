@@ -7,36 +7,40 @@
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <i class="fas fa-bars"></i>
         </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
-            {% comment %}
-            <!-- <li class="nav-item">
-                <a class="nav-link nav-link-1 active" aria-current="page" href="/">Photos</a>
-            </li> -->
-            <!-- <li class="nav-item">
-                <a class="nav-link nav-link-4" href="contact.html">Contact</a>
-            </li> -->
-            {% endcomment %}
-            {% if request.user.id %}
-            <li class="nav-item">
-                <a class="nav-link nav-link-1" aria-current="page" href="/">Photos</a>
-            </li>
-            {% endif %}
-
-            <li class="nav-item">
+        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto mb-2 mb-lg-0">
+                {% comment %}
+                <!-- <li class="nav-item">
+                    <a class="nav-link nav-link-1 active" aria-current="page" href="/">Photos</a>
+                </li> -->
+                <!-- <li class="nav-item">
+                    <a class="nav-link nav-link-4" href="contact.html">Contact</a>
+                </li> -->
+                {% endcomment %}
                 {% if request.user.id %}
-                    <a class="nav-link nav-link-2" href="{% url 'logout' %}">Logout</a>
-                {% else %}
-                    <a class="nav-link nav-link-2" href="{% url 'login' %}">Login</a>
+                <li class="nav-item">
+                    <a class="nav-link nav-link-1" aria-current="page" href="/">Photos</a>
+                </li>
                 {% endif %}
-            </li>
-            <li class="nav-item">
-                <a class="nav-link nav-link-3" href="{% url 'about' %}">About</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link nav-link-3" href="{% url 'about_creator' %}">Creator</a>
-            </li>
-        </ul>
+                <li class="nav-item dropdown">
+                    <a class="nav-link nav-link-2" href="#" data-toggle="dropdown">About</a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'about' %}">Project</a>
+                        <a class="dropdown-item" href="{% url 'about_creator' %}">Creator</a>
+                    </div>
+                </li>
+
+                <li class="nav-item">
+                    {% if request.user.id %}
+                        <a class="nav-link nav-link-3" href="{% url 'logout' %}">Logout</a>
+                    {% else %}
+                        <a class="nav-link nav-link-3" href="{% url 'login' %}">Login</a>
+                    {% endif %}
+                </li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link nav-link-3" href="{% url 'about_creator' %}">Creator</a>
+                </li> -->
+            </ul>
         </div>
     </div>
 </nav>
