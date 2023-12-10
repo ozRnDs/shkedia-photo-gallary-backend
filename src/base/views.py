@@ -60,10 +60,10 @@ def home(request: HttpRequest):
 def albums(request: HttpRequest, page_number):
 
 
-    gallery_service.__refresh_cache__(token=request.user.token_data.auth_token,
-                                      user_id=request.user.id)
+    # gallery_service.__refresh_cache__(token=request.user.token_data.auth_token,
+    #                                   user_id=request.user.id)
     
-    album_list: List[Album] = gallery_service.albums_list_for_user(user_id=request.user.id)
+    album_list: List[Album] = gallery_service.albums_list_for_user(token=request.user.token_data.auth_token,user_id=request.user.id)
 
     page_object = gallery_service.get_page_content(album_list, page_number)
 
@@ -82,13 +82,14 @@ def albums(request: HttpRequest, page_number):
 @auth_service.login_required()
 def view_album(request: HttpRequest, album_name, page_number):
 
-    chosen_album = [album for album in gallery_service.albums_list_for_user(request.user.id) if album.name == album_name][-1]
+    album_list: List[Album] = gallery_service.albums_list_for_user(token=request.user.token_data.auth_token, user_id=request.user.id)
+    chosen_album = [album for album in album_list if album.name == album_name][-1]
 
     page_object = gallery_service.get_page_content(chosen_album.images_list, page_number)
 
-
     context = {
-        "album_name": album_name,
+        "album_list": album_list,
+        "album_name": chosen_album.name,
         "media_list": gallery_service.decrypt_list_of_medias(page_object.items),
         "page": page_number,
         "pages_list": range(1,page_object.number_of_pages+1),

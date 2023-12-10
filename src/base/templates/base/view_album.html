@@ -1,15 +1,23 @@
 {% extends 'main.html' %} {% block content %}
 
+
+
 <div class="container-fluid tm-container-content tm-mt-60">
   <div class="row mb-4">
-    <h2 class="col-6 tm-text-primary">{{ album.name }}</h2>
-    <div class="col-6 d-flex justify-content-end align-items-center">
+    <h2 class="col-8 tm-text-primary">{{ album_name }}</h2>
+    <div class="col-2 d-flex justify-content-end align-items-center">
       <form action="" class="tm-text-primary">
         Page
         <input type="text" value="{{ page }}" size="1" class="tm-input-paging tm-text-primary" />
         of {{ pages_list|length }}
       </form>
     </div>
+    <div class="col-2 d-flex justify-content-end align-items-center">
+      <a class="btn btn-secondary" data-bs-toggle="offcanvas" href="#offcanvasExample" aria-controls="offcanvasExample">
+        View Albums
+      </a>
+    </div>
+
   </div>
 
   <div class="row tm-mb-90 tm-gallery">
@@ -54,7 +62,9 @@
       </div>
     </div>
   </div>
+</div>
   <!-- container-fluid, tm-container-content -->
+  {% include 'base/side_offcanvas.html' %}
 
   {% endblock %}
-</div>
+

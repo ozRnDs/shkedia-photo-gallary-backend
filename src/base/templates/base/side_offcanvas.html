@@ -1,0 +1,24 @@
+  <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title" id="offcanvasExampleLabel">Albums</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        {% for album in album_list %}
+    
+        <div class="container-fluid">
+            <figure class="effect-ming tm-video-item">
+                <img src="data:image/png;base64,{{ album.b64_preview_image }}" alt="Image" class="img-fluid">
+                <figcaption class="d-flex align-items-center justify-content-center">
+                    <h2>{{ album.name }}</h2>
+                    <a href="{% url 'album_view' album.name 1 %}">View more</a>
+                </figcaption>                    
+            </figure>
+            <div class="d-flex justify-content-between tm-text-gray">
+                <span class="tm-text-gray-light">{{ album.date }}</span>
+                <span>{{ album.images_list|length }} images</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+  </div>
