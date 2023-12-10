@@ -6,14 +6,14 @@
 
     
     <div class="row mb-4">
-        <div class="col-10">
+        <div class="col-6 col-sm-6 col-md-6 col-xl-8">
         {% if media.name and not media.name == '-' %}
             <h2 class="col-12 tm-text-primary">{{ media.name }}</h2>
         {% else %}
-            <h2 class="col-12 tm-text-primary">{{ media.created_on }}</h2>
+            <h2 class="col-12 tm-text-primary">{{ media.created_on|date:"d/m H:i" }}</h2>
         {% endif %}
         </div>
-        <div class="col-2 d-flex justify-content-end align-items-center">
+        <div class="col-6 col-sm-6 col-md-6 col-xl-4 d-flex justify-content-end align-items-center">
             <a class="btn btn-secondary" data-bs-toggle="offcanvas" href="#offcanvasExample" aria-controls="offcanvasExample">
               View Images
             </a>

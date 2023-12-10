@@ -1,24 +1,27 @@
   <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+    {% comment %}
     <div class="offcanvas-header">
       <h5 class="offcanvas-title" id="offcanvasExampleLabel">Navigate</h5>
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
+    {% endcomment %}
     <div class="offcanvas-body">
       <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="/">Albums</a></li>
+          <li class="breadcrumb-item"><a href="/" class="tm-text-gray">Albums</a></li>
           {% if media_list %}
-          <li class="breadcrumb-item active" aria-current="page">{{ album_name }}</li>
+          <li class="breadcrumb-item active" aria-current="page" class="tm-text-gray">{{ album_name }}</li>
           {% endif %}
           {% if media %}
-          <li class="breadcrumb-item"><a href="{% url 'album_view' album_name page %}">{{ album_name }}</a></li>
-          <li class="breadcrumb-item active" aria-current="page">Media</li>
+          <li class="breadcrumb-item"><a href="{% url 'album_view' album_name page %}" class="tm-text-gray">{{ album_name }}</a></li>
+          <li class="breadcrumb-item active" aria-current="page" class="tm-text-gray">Media</li>
           {% endif %}
         </ol>
       </nav>
+
         {% for item in nav_list %}
-        <div class="container-fluid">
-            <figure class="effect-ming tm-video-item">
+        <div class="container-fluid overflow-hidden" style="margin-bottom: 20px;">
+            <figure class="effect-ming tm-video-item" style="margin-bottom: 0px;">
                 <img src="data:image/png;base64,{{ item.canvas_thumbnail }}" alt="Image" class="img-fluid">
                 <figcaption class="d-flex align-items-center justify-content-center">
                     <h2>{{ item.name }}</h2>
@@ -30,11 +33,11 @@
                     {% endif %}
                 </figcaption>                    
             </figure>
-            <div class="d-flex justify-content-between tm-text-gray">
-                <span class="tm-text-gray-light">{{ item.canvas_left_description }}</span>
-                <span>{{ item.canvas_right_description }}</span>
+            <div class="d-flex justify-content-between tm-text-gray align-items-center">
+              <span class="tm-text-gray-light">{{ item.canvas_left_description }}</span>
+              <span>{{ item.canvas_right_description }}</span>
             </div>
-        </div>
+          </div>
         {% endfor %}
     </div>
   </div>
