@@ -1,3 +1,18 @@
+## 0.5.0 (2023-12-10)
+
+### Feat
+
+- **views,gallery_service,view_media,side_offcanvas**: Add offcanvas navigation to the view_media page
+- **view_album**: Add sidebar (offcanvas) for navigating between albums
+- **business/GalleryService**: Reactivate the caching mechanism in order to lower communication with Postgres
+- **templates/navbar**: Create dropdown menu for the about section. Adjust the navbar to the new bootstrap version
+- **statis/bootstrap**: Update the bootstrap version
+
+### Refactor
+
+- **main.html**: Include bootstrap.js in the main.html
+- **about_creator**: Rewrite the content
+
 ## 0.4.2 (2023-12-10)
 
 ### Fix
