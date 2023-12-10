@@ -4,11 +4,22 @@
 
 <div class="container-fluid tm-container-content tm-mt-60">
 
-    {% if media.name and not media.name == '-' %}
+    
     <div class="row mb-4">
-        <h2 class="col-12 tm-text-primary">{{ media.name }}</h2>
+        <div class="col-10">
+        {% if media.name and not media.name == '-' %}
+            <h2 class="col-12 tm-text-primary">{{ media.name }}</h2>
+        {% else %}
+            <h2 class="col-12 tm-text-primary">{{ media.created_on }}</h2>
+        {% endif %}
+        </div>
+        <div class="col-2 d-flex justify-content-end align-items-center">
+            <a class="btn btn-secondary" data-bs-toggle="offcanvas" href="#offcanvasExample" aria-controls="offcanvasExample">
+              View Images
+            </a>
+          </div>
     </div>
-    {% endif %}
+
 
     <div class="row tm-mb-90">            
         <div class="col-xl-8 col-lg-7 col-md-6 col-sm-12">
@@ -190,5 +201,5 @@
     </div> row -->
     {% endcomment %}
 </div> <!-- container-fluid, tm-container-content -->
-
+{% include 'base/side_offcanvas.html' %}
 {% endblock %}

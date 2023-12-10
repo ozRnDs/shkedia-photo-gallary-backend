@@ -1,22 +1,38 @@
   <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
     <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="offcanvasExampleLabel">Albums</h5>
+      <h5 class="offcanvas-title" id="offcanvasExampleLabel">Navigate</h5>
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-        {% for album in album_list %}
-    
+      <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/">Albums</a></li>
+          {% if media_list %}
+          <li class="breadcrumb-item active" aria-current="page">{{ album_name }}</li>
+          {% endif %}
+          {% if media %}
+          <li class="breadcrumb-item"><a href="{% url 'album_view' album_name page %}">{{ album_name }}</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Media</li>
+          {% endif %}
+        </ol>
+      </nav>
+        {% for item in nav_list %}
         <div class="container-fluid">
             <figure class="effect-ming tm-video-item">
-                <img src="data:image/png;base64,{{ album.b64_preview_image }}" alt="Image" class="img-fluid">
+                <img src="data:image/png;base64,{{ item.canvas_thumbnail }}" alt="Image" class="img-fluid">
                 <figcaption class="d-flex align-items-center justify-content-center">
-                    <h2>{{ album.name }}</h2>
-                    <a href="{% url 'album_view' album.name 1 %}">View more</a>
+                    <h2>{{ item.name }}</h2>
+                    {% if item.canvas_url_base == "album_view" %}
+                    <a href="{% url item.canvas_url_base item.canvas_url_id 1 %}">View more</a>
+                    {% endif %}
+                    {% if item.canvas_url_base == "media_view" %}
+                    <a href="{% url item.canvas_url_base album_name page item.canvas_url_id %}">View more</a>
+                    {% endif %}
                 </figcaption>                    
             </figure>
             <div class="d-flex justify-content-between tm-text-gray">
-                <span class="tm-text-gray-light">{{ album.date }}</span>
-                <span>{{ album.images_list|length }} images</span>
+                <span class="tm-text-gray-light">{{ item.canvas_left_description }}</span>
+                <span>{{ item.canvas_right_description }}</span>
             </div>
         </div>
         {% endfor %}

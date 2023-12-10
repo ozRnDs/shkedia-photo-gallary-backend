@@ -12,6 +12,7 @@ from business.image_processing.service import ImageProcessingService
 from business.db.media_service import MediaDBService, MediaDB, SearchResult
 from business.encryption.service import DecryptService
 from business.db.user_service import UserDBService, User, Device
+from business import utils
 
 # Caching mechanism
 class Album(BaseModel):
@@ -19,6 +20,26 @@ class Album(BaseModel):
     date: datetime
     images_list: List[MediaDB]
     b64_preview_image: str
+
+    @property
+    def canvas_thumbnail(self):
+        return self.b64_preview_image
+    
+    @property
+    def canvas_right_description(self):
+        return f"{len(self.images_list)} Images"
+    
+    @property
+    def canvas_left_description(self):
+        return f"{self.name}"
+    
+    @property
+    def canvas_url_base(self):
+        return f"album_view"
+
+    @property
+    def canvas_url_id(self):
+        return self.name
 
 class Page(BaseModel):
     page_number: int
@@ -29,6 +50,26 @@ class MediaView(MediaDB):
     thumbnail: str
     user: User | None = None
     device: Device | None = None
+
+    @property
+    def canvas_thumbnail(self):
+        return self.thumbnail
+    
+    @property
+    def canvas_right_description(self):
+        return utils.sizeof_fmt(self.media_size_bytes)
+    
+    @property
+    def canvas_left_description(self):
+        return self.created_on.strftime("%d/%m %H:%M")
+    
+    @property
+    def canvas_url_base(self):
+        return f"media_view"
+    
+    @property
+    def canvas_url_id(self):
+        return self.media_id
 
 class CacheMemory(BaseModel):
     albums_list: List[Album] = []
@@ -131,7 +172,9 @@ class MediaGalleryService():
     def albums_list_for_user(self, token, user_id):
         if not user_id in self.cache_object:
             self.__refresh_cache__(token=token, user_id=user_id)
-        return self.cache_object[user_id].albums_list
+        albums_list = self.cache_object[user_id].albums_list
+        albums_list.sort(key=lambda x:x.date, reverse=True)
+        return albums_list
 
     def get_page_content(self, items_list, page_number)-> Page:
         number_of_pages = ceil(len(items_list)/self.items_in_page)

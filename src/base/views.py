@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
 from django.contrib import messages
 
-
 from business.config import app_config
 from business.gallery.service import MediaGalleryService ,Album, MediaView
 from business.authentication.service import Token, AuthService
@@ -88,7 +87,7 @@ def view_album(request: HttpRequest, album_name, page_number):
     page_object = gallery_service.get_page_content(chosen_album.images_list, page_number)
 
     context = {
-        "album_list": album_list,
+        "nav_list": album_list,
         "album_name": chosen_album.name,
         "media_list": gallery_service.decrypt_list_of_medias(page_object.items),
         "page": page_number,
@@ -101,11 +100,15 @@ def view_album(request: HttpRequest, album_name, page_number):
 @auth_service.login_required()
 def view_media(request, album_name, page_number, media_id):
 
+    album_list: List[Album] = gallery_service.albums_list_for_user(token=request.user.token_data.auth_token, user_id=request.user.id)
+    chosen_album = [album for album in album_list if album.name == album_name][-1]
+
     context = {
+        "nav_list": gallery_service.decrypt_list_of_medias(chosen_album.images_list),
         "media": gallery_service.get_media_content(token=request.user.token_data.auth_token,
                                                 media_id=media_id, user_id=request.user.id),
         "album_name": album_name,
-        "page_number": page_number,
+        "page": page_number,
         "search_needed": True
     }
     
