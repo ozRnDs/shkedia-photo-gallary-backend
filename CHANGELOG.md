@@ -1,3 +1,11 @@
+## 0.5.1 (2023-12-13)
+
+### Fix
+
+- **GalleryService,view_media.html**: Get device information using the "get_device" method. Redesign the media details on the page
+- **templates/side_offcanvas**: Bring back missing Close button to the canvas
+- **GalleryService**: Call refresh_cache for every albums read. Fix the unlock and lock order to enable correct refresh of the cache mechanism
+
 ## 0.5.0 (2023-12-10)
 
 ### Feat
