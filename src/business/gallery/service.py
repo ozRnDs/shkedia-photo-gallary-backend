@@ -76,7 +76,7 @@ class CacheMemory(BaseModel):
     list_of_images: List[MediaDB] = []
     is_working: bool = False
     last_updated: datetime = datetime(year=1970, month=1, day=1)
-    retention_time_minutes: int = 60
+    retention_time_minutes: int = 300
 
     def is_updated(self):
         if self.last_updated + timedelta(minutes=self.retention_time_minutes) < datetime.now():
@@ -212,6 +212,6 @@ class MediaGalleryService():
             raise Exception("Could find media")
         media = self.__decrypt_single_media(media_content) 
         media.user = self.user_db_service.search_user(token, search_field="user_id", search_value=media.owner_id)
-        media.device = self.user_db_service.search_device(token, device_id=media.device_id)
+        media.device = self.user_db_service.get_device(token, device_id=media.device_id)
         return media
         
