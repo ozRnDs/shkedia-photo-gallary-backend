@@ -76,7 +76,7 @@ class CacheMemory(BaseModel):
     list_of_images: List[MediaDB] = []
     is_working: bool = False
     last_updated: datetime = datetime(year=1970, month=1, day=1)
-    retention_time_minutes: int = 1000
+    retention_time_minutes: int = 60
 
     def is_updated(self):
         if self.last_updated + timedelta(minutes=self.retention_time_minutes) < datetime.now():
@@ -84,7 +84,8 @@ class CacheMemory(BaseModel):
         return True
 
     def unlock(self):
-        self.last_updated = datetime.now()
+        if self.is_working:
+            self.last_updated = datetime.now()
         self.is_working=False
 
     def lock(self):
@@ -116,7 +117,10 @@ class MediaGalleryService():
         if os.path.exists(local_cache_file_location):
             with open(local_cache_file_location,"rb") as file:
                 logger.info("Loading Media from cache")
-                return pickle.load(file)
+                cache_object = pickle.load(file)
+                for user in cache_object:
+                    cache_object[user].unlock()
+                return cache_object
         return {}
 
     def __save_cache_locally__(self):
@@ -140,6 +144,7 @@ class MediaGalleryService():
             search_results = self.media_db_service.search_media(token=token, owner_id=user_id, upload_status="UPLOADED")
             self.cache_object[user_id].list_of_images=search_results.results
             self.__group_medias_per_month__(search_results.results, user_id)
+            self.cache_object[user_id].unlock()
             self.__save_cache_locally__()
         except Exception as err:
             logger.error(f"Something went wrong: {str(err)}")
@@ -156,7 +161,8 @@ class MediaGalleryService():
             if not album_name in temp_album_dict:
                 temp_album_dict[album_name]=[]
             temp_album_dict[album_name].append(media)
-        
+
+        self.cache_object[user_id].albums_list=[]
         for album_name, images_list in temp_album_dict.items():
             cover_media: MediaDB = images_list[0]
             album_thumbnail = self.decrypt_service.decrypt(cover_media.media_key, {"thumbnail": cover_media.media_thumbnail})
@@ -170,8 +176,7 @@ class MediaGalleryService():
                                                 ))
 
     def albums_list_for_user(self, token, user_id):
-        if not user_id in self.cache_object:
-            self.__refresh_cache__(token=token, user_id=user_id)
+        self.__refresh_cache__(token=token, user_id=user_id)
         albums_list = self.cache_object[user_id].albums_list
         albums_list.sort(key=lambda x:x.date, reverse=True)
         return albums_list
