@@ -94,12 +94,12 @@ def login(username: str, password: str)->TokenHeader:
 
 def generate_images_data(images_list: List[RandomImage], devices_list: List[str]) -> Dict[str,List[MediaRequest]]:
     
-    start_date = datetime(year=2022,month=8,day=1)
+    start_date = datetime(year=2022,month=4,day=1)
     
     
     images_metadata = {}
     for image_data in images_list:
-        random_date = randrange(425)
+        random_date = randrange(864000)
         target_device = devices_list[random_date % 2]
         if not target_device in images_metadata:
             images_metadata[target_device]=[]
@@ -109,8 +109,8 @@ def generate_images_data(images_list: List[RandomImage], devices_list: List[str]
         
         temp_image_metadata = ImageRequest(name=f"Image {image_data.id}",
                                             size=os.stat(image_device_path).st_size,
-                                            dateStr=(start_date+timedelta(days=random_date)).isoformat(),
-                                            date=(start_date+timedelta(days=random_date)).timestamp(),
+                                            dateStr=(start_date+timedelta(minutes=random_date)).isoformat(),
+                                            date=(start_date+timedelta(minutes=random_date)).timestamp(),
                                             uri=image_data.download_url, camera_maker="", camera_model=""
                                             ) # type: ignore
         images_metadata[target_device].append(temp_image_metadata)
@@ -186,12 +186,12 @@ if __name__ == "__main__":
         #TODO: Create information list of the images
         images_list: List[RandomImage] = load_list_of_images_from_file(DB_FILE_NAME)
         
-        generated_meta_data = generate_images_data(images_list, devices_list=devices_list)
+        # generated_meta_data = generate_images_data(images_list, devices_list=devices_list)
 
         token = login("Emma", "Demo")
         #Upload the data to the db
 
-        counter = 0
+        # counter = 3
         # for device_id in generated_meta_data:
         #     media_metadata_upload_response = upload_meta_data(token=token,images_list=generated_meta_data[device_id],device_id=device_id, user_name=demo_user_details["user_name"])
         #     save_object(f"{os.getcwd()}/dev/data/image_metadata-device-{counter}.pickle", media_metadata_upload_response)        
@@ -231,13 +231,38 @@ if __name__ == "__main__":
                                 "/workspaces/shkedia-photo-gallery-backend/dev/data/72.jpg",
                                 "/workspaces/shkedia-photo-gallery-backend/dev/data/74.jpg",
                                 "/workspaces/shkedia-photo-gallery-backend/dev/data/75.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/76.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/77.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/78.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/79.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/80.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/81.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/82.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/83.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/84.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/85.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/87.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/88.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/89.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/90.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/91.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/92.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/93.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/94.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/95.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/96.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/98.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/99.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/100.jpg",
+"/workspaces/shkedia-photo-gallery-backend/dev/data/101.jpg",
+
                                         ]
         for device_id in devices_list:
             search_result = search_media(token=token, device_id=device_id)
             logger.info(f"Uploading medias for device: {devices_list[0]}")
             for result in search_result.results:
                 image_path = os.getcwd() + "/dev/data/" + result.media_name.replace("Image ","")+".jpg"
-                if image_path in uploaded_image:
+                if image_path in uploaded_image or result.upload_status=="UPLOADED":
                     continue
                 put_image_file(token=token,image_local_path=image_path, device_id=result.device_id, user_name="Emma", image_name=result.media_name,
                                image_id=result.media_id, uri=result.device_media_uri)

@@ -20,7 +20,8 @@ class RandomImage(BaseModel):
 def get_list_of_images(number_of_images) -> List[RandomImage]:
     
     params = {
-        "limit": number_of_images
+        "limit": number_of_images,
+        "page": 6
     }
 
     images_list_url = f"{base_url}/v2/list"
@@ -55,10 +56,10 @@ def download_and_save_image(image_url, image_name):
 
 if __name__ == '__main__':
 
-    # list_of_images = get_list_of_images(1000)
-    # save_object(, modeled_list)
+    list_of_images = get_list_of_images(100)
+    save_object(DB_FILE_NAME, list_of_images)
 
-    list_of_images = load_list_of_images_from_file(DB_FILE_NAME)
+    # list_of_images = load_list_of_images_from_file(DB_FILE_NAME)
 
     for image in list_of_images:
         image_path = f"{SAVE_BASE_LOCATION}/{image.id}.jpg"
