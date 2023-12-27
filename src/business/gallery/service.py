@@ -1,3 +1,4 @@
+import traceback
 import os
 from pydantic import BaseModel
 from typing import List, Any
@@ -148,6 +149,7 @@ class MediaGalleryService():
             self.__save_cache_locally__()
         except Exception as err:
             logger.error(f"Something went wrong: {str(err)}")
+            traceback.print_exc()
         finally:
             self.cache_object[user_id].unlock()
 
