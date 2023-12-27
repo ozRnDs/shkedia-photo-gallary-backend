@@ -21,8 +21,6 @@ coverage.xml
 # My Extras to ignore
 tests
 .autodevops
-.devcontainer
 dev
 IaC
-.local
 .vscode

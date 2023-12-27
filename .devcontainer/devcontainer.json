@@ -1,9 +1,13 @@
 {
     "build": {
         "dockerfile": "Dockerfile",
-        "context": "../"
+        "context": "../",
+        "args": {
+            "HOME": "${localEnv:HOME}"
+        }
     },
     "forwardPorts": [8000],
-    "runArgs": [ "-v", "${localEnv:POSTGRES_CRED_LOCATION}/:/temp/", "-p","24500:8000"],
+    "runArgs": [ "-v", "${localEnv:POSTGRES_CRED_LOCATION}/:/temp/",
+                "-p","24500:8000"],
     "shutdownAction": "stopContainer"
 }

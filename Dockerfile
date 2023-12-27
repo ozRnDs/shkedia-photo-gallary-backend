@@ -5,9 +5,15 @@ RUN mkdir -p /usr/src
 
 WORKDIR /usr/src
 
+RUN mv /etc/pip.conf /etc/pip.conf.backup
+
+COPY .devcontainer/pip.conf /etc/pip.conf
+
 COPY requirements.txt ./
 
 RUN pip install -r requirements.txt
+
+RUN mv /etc/pip.conf.backup /etc/pip.conf
 
 COPY /src ./
 
