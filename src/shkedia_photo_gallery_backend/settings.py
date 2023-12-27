@@ -28,10 +28,10 @@ SECRET_KEY = 'django-insecure-qxmoq(v5zugq-q3b_i!c-hdwr7@b733-w3bps_7jtlrk*76xa1
 DEBUG = app_config.DEBUG
 
 
-CSRF_TRUSTED_ORIGINS = ['https://10.0.0.5', 'https://www.project-shkedia.com']
+CSRF_TRUSTED_ORIGINS = [f"https://{app_config.ALLOWED_HOST}"]
 
 ALLOWED_HOSTS = [
-    "www.project-shkedia.com", "10.0.0.5"
+    app_config.ALLOWED_HOST
 ]
 
 

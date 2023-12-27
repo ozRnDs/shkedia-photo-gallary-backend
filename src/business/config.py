@@ -30,6 +30,8 @@ class ApplicationConfiguration:
 
     LOCAL_CACHE_LOCATION: str = "/temp/local_cache.pickle"
 
+    ALLOWED_HOST: str = "CHANGE ME"
+
     DEBUG: int = 1
     
     def __init__(self) -> None:
