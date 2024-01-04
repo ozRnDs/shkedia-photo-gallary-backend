@@ -1,7 +1,5 @@
 FROM python:3.11.6
 
-ARG HOME
-
 RUN mkdir -p /usr/src
 
 WORKDIR /usr/src
