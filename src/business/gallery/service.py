@@ -9,8 +9,10 @@ from math import ceil
 import logging
 logger = logging.getLogger(__name__)
 
+from project_shkedia_models.collection import CollectionPreview
+
 from business.image_processing.service import ImageProcessingService
-from business.db.media_service import MediaDBService, MediaDB, SearchResult
+from business.db.media_service import MediaDBService, MediaDB, SearchResult, MediaObjectEnum, MediaThumbnail
 from business.encryption.service import DecryptService
 from business.db.user_service import UserDBService, User, Device
 from business import utils
@@ -19,7 +21,7 @@ from business import utils
 class Album(BaseModel):
     name: str
     date: datetime
-    images_list: List[MediaDB]
+    images_list: List[MediaThumbnail]
     b64_preview_image: str
 
     @property
@@ -47,7 +49,7 @@ class Page(BaseModel):
     items: Any
     number_of_pages: int
 
-class MediaView(MediaDB):
+class MediaView(MediaThumbnail):
     thumbnail: str
     user: User | None = None
     device: Device | None = None
@@ -115,13 +117,17 @@ class MediaGalleryService():
 
     def __load_cache_locally__(self):
         local_cache_file_location = self.local_cache_location
-        if os.path.exists(local_cache_file_location):
-            with open(local_cache_file_location,"rb") as file:
-                logger.info("Loading Media from cache")
-                cache_object = pickle.load(file)
-                for user in cache_object:
-                    cache_object[user].unlock()
-                return cache_object
+        try:
+            if os.path.exists(local_cache_file_location):
+                with open(local_cache_file_location,"rb") as file:
+                    logger.info("Loading Media from cache")
+                    cache_object = pickle.load(file)
+                    for user in cache_object:
+                        cache_object[user].unlock()
+                    return cache_object
+        except Exception as err:
+            traceback.print_exc()
+            logger.warning(f"Could not load local cache: {str(err)}")
         return {}
 
     def __save_cache_locally__(self):
@@ -131,59 +137,29 @@ class MediaGalleryService():
             pickle.dump(self.cache_object,file, protocol=pickle.HIGHEST_PROTOCOL)
             
 
-    def __refresh_cache__(self, token, user_id):
-        if not user_id in self.cache_object:
-            self.cache_object[user_id] = CacheMemory()
-        if self.cache_object[user_id].is_working:
-            while self.cache_object[user_id].is_working:
-                time.sleep(1)
-        try:
-            if self.cache_object[user_id].is_updated():
-                return
-            self.cache_object[user_id].lock()
-            logger.info(f"Loading Media from Media DB")
-            search_results = self.media_db_service.search_media(token=token, owner_id=user_id, upload_status="UPLOADED")
-            self.cache_object[user_id].list_of_images=search_results.results
-            self.__group_medias_per_month__(search_results.results, user_id)
-            self.cache_object[user_id].unlock()
-            self.__save_cache_locally__()
-        except Exception as err:
-            logger.error(f"Something went wrong: {str(err)}")
-            traceback.print_exc()
-        finally:
-            self.cache_object[user_id].unlock()
+    def get_collections_for_user(self, token, engine_type, page_number=0, page_size=16):
+        # self.__refresh_cache__(token=token, user_id=user_id, engine_type)
+        collections_results = self.media_db_service.search_collections(token=token,engine_name=engine_type,page_number=page_number, page_size=page_size)
+        if len(collections_results.results)==0:
+            return SearchResult(total_results_number=0,results=[])
+        collections_results.results = [CollectionPreview(**collection_item) for collection_item in collections_results.results]
+        for collection in collections_results.results:
+            collection_thumbnail = self.decrypt_service.decrypt(collection.media_key, {"thumbnail": collection.thumbnail})
+            collection_thumbnail = ImageProcessingService.get_image_base64(collection_thumbnail["thumbnail"])
+            collection.thumbnail = collection_thumbnail
+        return collections_results
 
-    def __group_medias_per_month__(self, media_list: List[MediaDB], user_id:str):
-        temp_album_dict = {}
-
-        for media in media_list:
-            if media.upload_status!="UPLOADED":
-                continue
-            album_name = media.created_on.strftime("%m-%Y")
-            if not album_name in temp_album_dict:
-                temp_album_dict[album_name]=[]
-            temp_album_dict[album_name].append(media)
-
-        self.cache_object[user_id].albums_list=[]
-        for album_name, images_list in temp_album_dict.items():
-            cover_media: MediaDB = images_list[0]
-            album_thumbnail = self.decrypt_service.decrypt(cover_media.media_key, {"thumbnail": cover_media.media_thumbnail})
-            album_thumbnail = ImageProcessingService.get_image_base64(album_thumbnail["thumbnail"])
-            self.cache_object[user_id].albums_list.append(Album(
-                name=album_name, date=datetime(year=cover_media.created_on.year,
-                                                month=cover_media.created_on.month,
-                                                day=1),
-                                                images_list=images_list,
-                                                b64_preview_image=album_thumbnail
-                                                ))
-
-    def albums_list_for_user(self, token, user_id):
-        self.__refresh_cache__(token=token, user_id=user_id)
-        albums_list = self.cache_object[user_id].albums_list
-        albums_list.sort(key=lambda x:x.date, reverse=True)
-        return albums_list
+    def get_collection_for_user(self,token,collection_name, engine_type, page_number=0, page_size=16):
+        collection_details = self.media_db_service.get_collection_for_user(token=token,collection_name=collection_name, engine_name=engine_type)
+        media_list = self.media_db_service.get_collection_media(token=token, collection_name=collection_name, engine_type=engine_type, page_number=page_number, page_size=page_size)
+        collection_size = len(collection_details.media_list)
+        media_list = Page(page_number=0,items=media_list,number_of_pages=ceil(collection_size/page_size))
+        return collection_details, media_list
+        
 
     def get_page_content(self, items_list, page_number)-> Page:
+        if len(items_list) == 0:
+            return Page(page_number=0,items=[],number_of_pages=0)
         number_of_pages = ceil(len(items_list)/self.items_in_page)
         start_index = (page_number-1)*self.items_in_page
         end_index = start_index + self.items_in_page
@@ -196,23 +172,24 @@ class MediaGalleryService():
                     number_of_pages=number_of_pages,
                     items=items_list[start_index:end_index])
 
-    def decrypt_list_of_medias(self, medias_list: List[MediaDB])-> List[MediaView]:
+    def decrypt_list_of_medias(self, medias_list: List[MediaThumbnail])-> List[MediaView]:
         decrypted_list = []
         for media in medias_list:
             decrypted_list.append(self.__decrypt_single_media(media))
         return decrypted_list
 
-    def __decrypt_single_media(self, media: MediaDB) -> MediaView:
+    def __decrypt_single_media(self, media: MediaThumbnail) -> MediaView:
         image = self.decrypt_service.decrypt(media.media_key,{"image": media.media_thumbnail})
         image = ImageProcessingService.get_image_base64(image["image"])
         return MediaView(thumbnail=image,**media.model_dump())
 
 
     def get_media_content(self, token, media_id, user_id) -> MediaView:
-        media_content = [media for media in self.cache_object[user_id].list_of_images if media.media_id==media_id][-1]
-        if media_content is None:
-            raise Exception("Could find media")
-        media = self.__decrypt_single_media(media_content) 
+        # media_content = [media for media in self.cache_object[user_id].list_of_images if media.media_id==media_id][-1]
+        # if media_content is None:
+        #     raise Exception("Could find media")
+        media = self.media_db_service.search_media(token=token,media_id=media_id,response_type=MediaObjectEnum.MediaThumbnail)
+        media = self.__decrypt_single_media(MediaThumbnail(**media.results[0]))
         media.user = self.user_db_service.search_user(token, search_field="user_id", search_value=media.owner_id)
         media.device = self.user_db_service.get_device(token, device_id=media.device_id)
         return media

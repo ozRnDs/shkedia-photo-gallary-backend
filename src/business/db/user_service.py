@@ -6,24 +6,25 @@ import json
 from pydantic import BaseModel
 
 from business.authentication.models import Token
-from business.models.user import UserDB, UserRequest, User
-from business.models.device import Device, DeviceRequest
+from project_shkedia_models.user import UserDB, UserRequest, User
+from project_shkedia_models.device import Device, DeviceRequest
 
 
 def retry(max_retries=5):
     def __external_wrapper__(fun):
         def __internal_wrapper__(*args, **kargs):
             retry_counter = 0
-
+            error = None
             while retry_counter<max_retries:
                 try:
                     return fun(*args, **kargs)
                 except PermissionError as err:
                     raise err
                 except Exception as err:
+                    error = err
                     retry_counter+=1
-            logger.error(f"Error repeated: {max_retries} times: {str(err)}")
-            raise err
+            logger.error(f"Error repeated: {max_retries} times: {str(error)}")
+            raise error
 
         return __internal_wrapper__
     return __external_wrapper__
@@ -49,7 +50,7 @@ class UserDBService:
         insert_url = self.service_url+"/user"
 
         content = {
-            "user_name": user.username,
+            "username": user.user_name,
             "password": user.password
         }
 
@@ -63,8 +64,11 @@ class UserDBService:
     def login_user(self, user: UserRequest) -> Token:
         
         login_url = self.service_url+"/login"
-
-        login_response = requests.post(login_url, data=user.model_dump())
+        data = {
+            "username":user.user_name,
+            "password":user.password
+        }
+        login_response = requests.post(login_url, data=data)
 
         if login_response.status_code == 200:
             return Token(**login_response.json())

@@ -1,9 +1,13 @@
+import traceback
+import logging
+logger = logging.getLogger(__name__)
+
 from django.shortcuts import render
-from django.http import HttpResponse, HttpRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpRequest, HttpResponseForbidden, HttpResponseNotFound, HttpResponseRedirect
 from django.contrib import messages
 
 from business.config import app_config
-from business.gallery.service import MediaGalleryService ,Album, MediaView
+from business.gallery.service import MediaGalleryService ,Album, MediaView, SearchResult, CollectionPreview
 from business.authentication.service import Token, AuthService
 from business.db.media_service import MediaDBService
 from business.encryption.service import DecryptService
@@ -35,6 +39,7 @@ def login_page(request: HttpRequest):
         except PermissionError:
             messages.add_message(request, messages.ERROR, "Wrong username or password")
         except Exception:
+            traceback.print_exc()
             messages.add_message(request, messages.ERROR, "Sorry, I'm not sure what went wrong")
 
     if request.COOKIES.get("session") == "Expired":
@@ -62,33 +67,49 @@ def albums(request: HttpRequest, page_number):
     # gallery_service.__refresh_cache__(token=request.user.token_data.auth_token,
     #                                   user_id=request.user.id)
     
-    album_list: List[Album] = gallery_service.albums_list_for_user(token=request.user.token_data.auth_token,user_id=request.user.id)
+    engine_type = request.GET.get("engine_type") if request.GET.get("engine_type") else "months"
 
-    page_object = gallery_service.get_page_content(album_list, page_number)
+    try:
+        album_list: SearchResult = gallery_service.get_collections_for_user(token=request.user.token_data.auth_token,engine_type=engine_type, page_number=page_number-1)
+    except PermissionError as err:
+        return HttpResponseRedirect(redirect_to="/login")
 
-    if page_number > page_object.number_of_pages:
-        return albums(request, page_object.number_of_pages)
+    # page_object = gallery_service.get_page_content(album_list, page_number)
+    if album_list.total_results_number==0:
+        return HttpResponseNotFound(content="Couldn't find collections for engine")
+
+    if page_number > album_list.number_of_pages:
+        return albums(request, album_list.number_of_pages)
 
     context = {
-        "album_list": page_object.items,
+        "engine_type": engine_type,
+        "album_list": album_list.results,
         "page": page_number,
-        "pages_list": range(1,page_object.number_of_pages+1),
+        "pages_list": range(1,album_list.number_of_pages+1),
         "search_needed": True
     }
 
     return render(request, 'base/albums.html', context)
 
 @auth_service.login_required()
-def view_album(request: HttpRequest, album_name, page_number):
-
-    album_list: List[Album] = gallery_service.albums_list_for_user(token=request.user.token_data.auth_token, user_id=request.user.id)
-    chosen_album = [album for album in album_list if album.name == album_name][-1]
-
-    page_object = gallery_service.get_page_content(chosen_album.images_list, page_number)
-
+def view_album(request: HttpRequest, engine_type, collection_name, page_number):
+    album_list = None
+    try:
+        album_list: SearchResult = gallery_service.get_collections_for_user(token=request.user.token_data.auth_token,engine_type=engine_type, page_number=0, page_size=10)
+    except Exception:
+        pass
+    try:
+        collection, page_object = gallery_service.get_collection_for_user(token=request.user.token_data.auth_token, collection_name=collection_name, engine_type=engine_type, page_number=page_number-1)
+    except FileNotFoundError as err:
+        return HttpResponseNotFound(content=str(err))
+    except PermissionError as err:
+        return HttpResponseRedirect(redirect_to="/login")
+    
     context = {
-        "nav_list": album_list,
-        "album_name": chosen_album.name,
+        "engine_type": engine_type,
+        "view_type": "album",
+        "nav_list": album_list.results,
+        "album_name": collection.name,
         "media_list": gallery_service.decrypt_list_of_medias(page_object.items),
         "page": page_number,
         "pages_list": range(1,page_object.number_of_pages+1),
@@ -98,16 +119,18 @@ def view_album(request: HttpRequest, album_name, page_number):
     return render(request, 'base/view_album.html', context)
 
 @auth_service.login_required()
-def view_media(request, album_name, page_number, media_id):
+def view_media(request, engine_type, collection_name, page_number, media_id):
 
-    album_list: List[Album] = gallery_service.albums_list_for_user(token=request.user.token_data.auth_token, user_id=request.user.id)
-    chosen_album = [album for album in album_list if album.name == album_name][-1]
+    media_item = gallery_service.get_media_content(token=request.user.token_data.auth_token,
+                                                media_id=media_id, user_id=request.user.id)
+    collection, nav_object = gallery_service.get_collection_for_user(token=request.user.token_data.auth_token, collection_name=collection_name, engine_type=engine_type, page_number=page_number-1)
 
     context = {
-        "nav_list": gallery_service.decrypt_list_of_medias(chosen_album.images_list),
-        "media": gallery_service.get_media_content(token=request.user.token_data.auth_token,
-                                                media_id=media_id, user_id=request.user.id),
-        "album_name": album_name,
+        "nav_list": gallery_service.decrypt_list_of_medias(nav_object.items),
+        "view_type": "media",
+        "media": media_item,
+        "album_name": collection_name,
+        "engine_type": engine_type,
         "page": page_number,
         "search_needed": True
     }

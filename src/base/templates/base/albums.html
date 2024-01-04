@@ -19,15 +19,15 @@
     
         <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 mb-5">
             <figure class="effect-ming tm-video-item">
-                <img src="data:image/png;base64,{{ album.b64_preview_image }}" alt="Image" class="img-fluid">
+                <img src="data:image/png;base64,{{ album.thumbnail }}" alt="Image" class="img-fluid">
                 <figcaption class="d-flex align-items-center justify-content-center">
                     <h2>{{ album.name }}</h2>
-                    <a href="{% url 'album_view' album.name 1 %}">View more</a>
+                    <a href="{% url 'album_view' engine_type album.name 1 %}">View more</a>
                 </figcaption>                    
             </figure>
             <div class="d-flex justify-content-between tm-text-gray">
-                <span class="tm-text-gray-light">{{ album.date }}</span>
-                <span>{{ album.images_list|length }} images</span>
+                <span class="tm-text-gray-light">{{ album.name }}</span>
+                <span>{{ album.media_list|length }} images</span>
             </div>
         </div>
         {% endfor %}

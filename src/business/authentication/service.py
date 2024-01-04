@@ -1,10 +1,13 @@
+import traceback
+import logging
+logger = logging.getLogger(__name__)
 
 import json
 from jose import JWTError, jwt
 from typing import Annotated
 from passlib.context import CryptContext
 
-from django.http import HttpRequest, HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpRequest, HttpResponseRedirect, HttpResponseForbidden, HttpResponseServerError
 from pydantic import BaseModel
 from datetime import timedelta, datetime
 
@@ -38,7 +41,7 @@ class AuthService:
     def log_in(self, username: str, password: str, redirect_to: str="/"):
 
 
-        auth_token = self.user_db_service.login_user(user=UserRequest(username=username, password=password))
+        auth_token = self.user_db_service.login_user(user=UserRequest(user_name=username, password=password))
         user_data = self.user_db_service.search_user(auth_token,search_value=username)
         gallery_token_data = TokenData(sub=user_data.user_name, auth_token=auth_token)
         gallery_access_token = self.create_access_token(data=gallery_token_data.model_dump())
@@ -69,8 +72,12 @@ class AuthService:
                     response = HttpResponseRedirect(self.login_redirect_path)
                     response.set_cookie("session", "Expired")
                     return response
-                except ValueError as err:
-                    return HttpResponseRedirect(self.login_redirect_path)
+                # except ValueError as err:
+                #     return HttpResponseRedirect(self.login_redirect_path)
+                except Exception as err:
+                    traceback.print_exc()
+                    logger.error(str(err))
+                    return HttpResponseServerError(content="Internal Server Error")
             return __inner_wrapper__
         return __outer_wrapper__
 
