@@ -22,7 +22,7 @@ from random import randrange
 import requests
 
 from harvest_images import RandomImage, load_list_of_images_from_file, DB_FILE_NAME
-from business.models.medias import MediaRequest, MediaDB
+from project_shkedia_models.media import MediaRequest, MediaDB
 
 demo_user_details = {
   "user_id": "3f89e3f8-1870-4d9a-80db-adf9b8698ea6",
