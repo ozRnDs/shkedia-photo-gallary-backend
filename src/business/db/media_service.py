@@ -2,10 +2,15 @@ import sys
 import logging
 logger = logging.getLogger(__name__)
 from typing import List
+import json
+
+from datetime import timedelta, datetime
+
+from cachetools import cached,TTLCache
+
 from requests.adapters import HTTPAdapter, Retry
 import requests
-import json
-from pydantic import BaseModel
+
 
 from business.authentication.models import Token
 from project_shkedia_models.media import MediaRequest, MediaDB, MediaObjectEnum, MediaThumbnail
@@ -46,8 +51,9 @@ class MediaDBService:
             return MediaDB(**insert_response.json())
         raise Exception(insert_response.json()["details"])
 
+    @cached(cache=TTLCache(maxsize=10, ttl=timedelta(hours=12), timer=datetime.now))
     def get_all_engines(self, response_type: InsightEngineObjectEnum=InsightEngineObjectEnum.InsightEngine):
-        get_all_engines_url = self.service_url+"/v3/insight-engines"
+        get_all_engines_url = self.service_url+"/v3/insights-engines"
 
         params = {
             "response_type" : response_type.value
