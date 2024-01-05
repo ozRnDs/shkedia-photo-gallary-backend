@@ -5,8 +5,6 @@ RUN mkdir -p /usr/src
 
 WORKDIR /usr/src
 
-RUN mv /etc/pip.conf /etc/pip.conf.backup
-
 COPY requirements.txt ./
 
 COPY .autodevops/.build/pip.conf /root/.config/pip/
