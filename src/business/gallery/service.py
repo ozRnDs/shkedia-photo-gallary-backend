@@ -20,31 +20,6 @@ from business.db.user_service import UserDBService, User, Device
 from business import utils
 
 # Caching mechanism
-class Album(BaseModel):
-    name: str
-    date: datetime
-    images_list: List[MediaThumbnail]
-    b64_preview_image: str
-
-    @property
-    def canvas_thumbnail(self):
-        return self.b64_preview_image
-    
-    @property
-    def canvas_right_description(self):
-        return f"{len(self.images_list)} Images"
-    
-    @property
-    def canvas_left_description(self):
-        return f"{self.name}"
-    
-    @property
-    def canvas_url_base(self):
-        return f"album_view"
-
-    @property
-    def canvas_url_id(self):
-        return self.name
 
 class Page(BaseModel):
     page_number: int
@@ -75,26 +50,6 @@ class MediaView(MediaThumbnail):
     @property
     def canvas_url_id(self):
         return self.media_id
-
-class CacheMemory(BaseModel):
-    albums_list: List[Album] = []
-    list_of_images: List[MediaDB] = []
-    is_working: bool = False
-    last_updated: datetime = datetime(year=1970, month=1, day=1)
-    retention_time_minutes: int = 300
-
-    def is_updated(self):
-        if self.last_updated + timedelta(minutes=self.retention_time_minutes) < datetime.now():
-            return False
-        return True
-
-    def unlock(self):
-        if self.is_working:
-            self.last_updated = datetime.now()
-        self.is_working=False
-
-    def lock(self):
-        self.is_working=True
 
 class MediaGalleryService():
 
