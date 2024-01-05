@@ -7,7 +7,7 @@ from django.http import HttpResponse, HttpRequest, HttpResponseForbidden, HttpRe
 from django.contrib import messages
 
 from business.config import app_config
-from business.gallery.service import MediaGalleryService ,Album, MediaView, SearchResult, CollectionPreview
+from business.gallery.service import MediaGalleryService ,MediaView, SearchResult, CollectionPreview
 from business.authentication.service import Token, AuthService
 from business.db.media_service import MediaDBService
 from business.encryption.service import DecryptService
