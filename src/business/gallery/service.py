@@ -12,7 +12,8 @@ logger = logging.getLogger(__name__)
 from project_shkedia_models.collection import CollectionPreview
 
 from business.image_processing.service import ImageProcessingService
-from business.db.media_service import MediaDBService, MediaDB, SearchResult, MediaObjectEnum, MediaThumbnail
+from business.db.media_service import MediaDBService, MediaDB, SearchResult, MediaObjectEnum, MediaThumbnail, Insight, InsightJob
+from project_shkedia_models.jobs import InsightJobStatus
 from business.encryption.service import DecryptService
 from business.db.user_service import UserDBService, User, Device
 from business import utils
@@ -193,4 +194,10 @@ class MediaGalleryService():
         media.user = self.user_db_service.search_user(token, search_field="user_id", search_value=media.owner_id)
         media.device = self.user_db_service.get_device(token, device_id=media.device_id)
         return media
-        
+    
+    def get_media_insights(self, token, media_id):
+        insights_list = self.media_db_service.search_insights(token,media_id=media_id)
+        jobs_list = self.media_db_service.search_jobs(token, media_id=media_id)
+        jobs_list = [job_item for job_item in jobs_list if job_item.status != InsightJobStatus.DONE]
+
+        return insights_list,jobs_list

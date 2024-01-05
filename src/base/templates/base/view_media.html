@@ -4,59 +4,52 @@
 
 <div class="container-fluid tm-container-content tm-mt-60">
 
-    
+
     <div class="row mb-4">
         <div class="col-6 col-sm-6 col-md-6 col-xl-8">
-        {% if media.name and not media.name == '-' %}
+            {% if media.name and not media.name == '-' %}
             <h2 class="col-12 tm-text-primary">{{ media.name }}</h2>
-        {% else %}
+            {% else %}
             <h2 class="col-12 tm-text-primary">{{ media.created_on|date:"d/m H:i" }}</h2>
-        {% endif %}
+            {% endif %}
         </div>
         <div class="col-6 col-sm-6 col-md-6 col-xl-4 d-flex justify-content-end align-items-center">
-            <a class="btn btn-secondary" data-bs-toggle="offcanvas" href="#offcanvasExample" aria-controls="offcanvasExample">
-              View Images
+            <a class="btn btn-secondary" data-bs-toggle="offcanvas" href="#offcanvasExample"
+                aria-controls="offcanvasExample">
+                View Images
             </a>
-          </div>
+        </div>
     </div>
 
 
-    <div class="row tm-mb-90">            
+    <div class="row tm-mb-90">
         <div class="col-xl-8 col-lg-7 col-md-6 col-sm-12">
             <img src="data:image/png;base64,{{ media.thumbnail }}" alt="Image" class="img-fluid-wide">
         </div>
         <div class="col-xl-4 col-lg-5 col-md-6 col-sm-12">
             <div class="tm-bg-gray tm-video-details">
-                {% comment %}
-                <!-- <p class="mb-4">
-                    Please support us by making <a href="https://paypal.me/templatemo" target="_parent" rel="sponsored">a PayPal donation</a>. Nam ex nibh, efficitur eget libero ut, placerat aliquet justo. Cras nec varius leo.
-                </p>
-                <div class="text-center mb-5">
-                    <a href="#" class="btn btn-primary tm-btn-big">Download</a>
-                </div>                     -->
-                {% endcomment %}
-                    <div class="col-12 mb-2">
-                        <span class="tm-text-gray-dark">Owner: </span><span class="tm-text-primary">{{ media.user.user_name }}</span>
-                    </div>
-                    {% if media.device.device_name %}
-                    <div class="col-12 mb-2">
-                        <span class="tm-text-gray-dark">Device: </span><span class="tm-text-primary">{{ media.device.device_name }}</span>
-                    </div>
-                    {% endif %}
-                    <div class="col-12 mb-2">
-                        <span class="tm-text-gray-dark">Date: </span><span class="tm-text-primary">{{ media.created_on|date:"d/m/y H:i" }}</span>
-                    </div>
-                    {% if media.media_width %}
-                    <div class="col-12 mb-2">
-                        <span class="tm-text-gray-dark">Dimension: </span><span class="tm-text-primary">{{ media.media_width }}x{{ media.media_height }}</span>
-                    </div>
-                    {% endif %}
-                    <div class="col-12 mb-2">
-                        <span class="tm-text-gray-dark">Size: </span><span class="tm-text-primary">{{ media.media_size_bytes|filesizeformat }}</span>
-                    </div>
-                    <div class="col-12 mb-2">
-                        <span class="tm-text-gray-dark">Format: </span><span class="tm-text-primary">JPG</span>
-                    </div>
+                <h3 class="tm-text-gray-dark mb-3">Media Details</h3>
+                <div class="col-12 mb-2">
+                    <span class="tm-text-gray-dark">Owner: </span><span class="tm-text-primary">{{ media.user.user_name }}</span>
+                </div>
+                {% if media.device.device_name %}
+                <div class="col-12 mb-2">
+                    <span class="tm-text-gray-dark">Device: </span><span class="tm-text-primary">{{ media.device.device_name }}</span>
+                </div>
+                {% endif %}
+                <div class="col-12 mb-2">
+                    <span class="tm-text-gray-dark">Date: </span><span class="tm-text-primary">{{ media.created_on|date:"d/m/y H:i" }}</span>
+                </div>
+                {% if media.media_width %}
+                <div class="col-12 mb-2">
+                    <span class="tm-text-gray-dark">Dimension: </span><span class="tm-text-primary">{{ media.media_width }}x{{ media.media_height }}</span>
+                </div>
+                {% endif %}
+                <div class="col-12 mb-2">
+                    <span class="tm-text-gray-dark">Size: </span><span class="tm-text-primary">{{ media.media_size_bytes|filesizeformat }}</span>
+                </div>
+                <div class="col-12 mb-2">
+                    <span class="tm-text-gray-dark">Format: </span><span class="tm-text-primary">JPG</span>
                 </div>
                 {% if media.media_description != "-" %}
                 <div class="mb-4">
@@ -64,30 +57,29 @@
                     <p>{{ media.media_description }}</p>
                 </div>
                 {% endif %}
-                {% comment %}
                 <div>
-                    <h3 class="tm-text-gray-dark mb-3">Tags</h3>
-                    <a href="#" class="tm-text-primary mr-4 mb-2 d-inline-block">Cloud</a>
-                    <a href="#" class="tm-text-primary mr-4 mb-2 d-inline-block">Bluesky</a>
-                    <a href="#" class="tm-text-primary mr-4 mb-2 d-inline-block">Nature</a>
-                    <a href="#" class="tm-text-primary mr-4 mb-2 d-inline-block">Background</a>
-                    <a href="#" class="tm-text-primary mr-4 mb-2 d-inline-block">Timelapse</a>
-                    <a href="#" class="tm-text-primary mr-4 mb-2 d-inline-block">Night</a>
-                    <a href="#" class="tm-text-primary mr-4 mb-2 d-inline-block">Real Estate</a>
+                    {% if insights %}
+                        <h3 class="tm-text-gray-dark mb-3">Automatic Insights</h3>
+                        {% for insight in insights %}
+                        <div class="col-12 mb-2">
+                            <span class="tm-text-gray-dark">Months: </span><span class="tm-text-primary">{{ insight.name }}</span>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
-                {% endcomment %}
             </div>
-        </div>   
-    </div>
-    <div class="row mb-4">
-        <div class="col-12 d-flex justify-content-between align-items-center tm-paging-col">
-          <div class="col-12 d-flex justify-content-between align-items-center tm-paging-col">
-            <a href="javascript:history.back()" class="btn btn-primary tm-btn-next mb-2">Back</a>
-          </div>
         </div>
     </div>
-    {% comment %}
-    <!-- <div class="row mb-4">
+</div>
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-between align-items-center tm-paging-col">
+        <div class="col-12 d-flex justify-content-between align-items-center tm-paging-col">
+            <a href="javascript:history.back()" class="btn btn-primary tm-btn-next mb-2">Back</a>
+        </div>
+    </div>
+</div>
+{% comment %}
+<div class="row mb-4">
         <h2 class="col-12 tm-text-primary">
             Related Photos
         </h2>
@@ -197,7 +189,7 @@
                 <span>11,300 views</span>
             </div>
         </div>        
-    </div> row -->
+    </div>
     {% endcomment %}
 </div> <!-- container-fluid, tm-container-content -->
 {% include 'base/side_offcanvas.html' %}

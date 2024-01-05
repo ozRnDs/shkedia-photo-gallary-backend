@@ -10,6 +10,8 @@ from business.authentication.models import Token
 from project_shkedia_models.media import MediaRequest, MediaDB, MediaObjectEnum, MediaThumbnail
 from project_shkedia_models.search import SearchResult
 from project_shkedia_models.collection import CollectionPreview
+from project_shkedia_models.jobs import InsightJob
+from project_shkedia_models.insights import Insight
 
 class MediaDBService:
 
@@ -163,5 +165,46 @@ class MediaDBService:
             return MediaDB(**insert_response.json())
         raise Exception(insert_response.json()["detail"])
 
+    def search_insights(self, token: Token, **kargs) -> List[Insight]:
+        insert_url = self.service_url+"/v3/insights/search"
 
+        s = requests.Session()
+
+        retries = Retry(total=5,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504])
+
+        s.mount('http://', HTTPAdapter(max_retries=retries))
+
+        search_response = requests.get(insert_url,params=kargs, headers=token.get_token_as_header())
+
+        s.close()
+
+        if search_response.status_code == 200:
+            search_response = SearchResult(**search_response.json())
+            return [Insight(**insight_item) for insight_item in search_response.results]
+        if search_response.status_code == 404:
+            return []
+        raise Exception(search_response.json()["detail"])
         
+    def search_jobs(self, token: Token, **kargs) -> List[InsightJob]:
+        insert_url = self.service_url+"/v2/jobs/search"
+
+        s = requests.Session()
+
+        retries = Retry(total=5,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504])
+
+        s.mount('http://', HTTPAdapter(max_retries=retries))
+
+        search_response = requests.get(insert_url,params=kargs, headers=token.get_token_as_header())
+
+        s.close()
+
+        if search_response.status_code == 200:
+            search_response = SearchResult(**search_response.json())
+            return [InsightJob(**insight_item) for insight_item in search_response.results]
+        if search_response.status_code == 404:
+            return []
+        raise Exception(search_response.json()["detail"])

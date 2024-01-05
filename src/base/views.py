@@ -120,11 +120,22 @@ def view_album(request: HttpRequest, engine_type, collection_name, page_number):
 
 @auth_service.login_required()
 def view_media(request, engine_type, collection_name, page_number, media_id):
-
-    media_item = gallery_service.get_media_content(token=request.user.token_data.auth_token,
-                                                media_id=media_id, user_id=request.user.id)
-    collection, nav_object = gallery_service.get_collection_for_user(token=request.user.token_data.auth_token, collection_name=collection_name, engine_type=engine_type, page_number=page_number-1)
-
+    try:
+        media_item = gallery_service.get_media_content(token=request.user.token_data.auth_token,
+                                                    media_id=media_id, user_id=request.user.id)
+    except FileNotFoundError as err:
+        return HttpResponseNotFound(content=str(err))
+    except PermissionError as err:
+        return HttpResponseRedirect(redirect_to="/login")
+    try:
+        collection, nav_object = gallery_service.get_collection_for_user(token=request.user.token_data.auth_token, collection_name=collection_name, engine_type=engine_type, page_number=page_number-1)
+    except Exception as err:
+        logger.warning(f"Failed to get nav content: {str(err)}")
+    insight_list = job_list = None
+    try:
+        insight_list,job_list = gallery_service.get_media_insights(token=request.user.token_data.auth_token,media_id=media_id)
+    except Exception as err:
+        logger.warning(f"Failed to get insights: {str(err)}")
     context = {
         "nav_list": gallery_service.decrypt_list_of_medias(nav_object.items),
         "view_type": "media",
@@ -132,7 +143,9 @@ def view_media(request, engine_type, collection_name, page_number, media_id):
         "album_name": collection_name,
         "engine_type": engine_type,
         "page": page_number,
-        "search_needed": True
+        "search_needed": True,
+        "insights": insight_list,
+        "jobs": job_list
     }
     
     return render(request, 'base/view_media.html', context)
