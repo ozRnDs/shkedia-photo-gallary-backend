@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="{% static  'css/templatemo-style.css' %}">
 </head>
 <body>
+
+    <script src="{% static 'js/plugins.js' %}"></script>
+    <script src="{% static 'js/bootstrap.js' %}"></script>
     
     {% include 'navbar.html' %}
     
@@ -21,8 +24,6 @@
 
     {% include 'footer.html' %}
     
-    <script src="{% static 'js/plugins.js' %}"></script>
-    <script src="{% static 'js/bootstrap.js' %}"></script>
     <script>
         $(window).on("load", function() {
             $('body').addClass('loaded');

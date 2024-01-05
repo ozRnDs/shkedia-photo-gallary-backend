@@ -2,17 +2,20 @@ import traceback
 import logging
 logger = logging.getLogger(__name__)
 
+from typing import Dict, List
+
 from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, HttpResponseForbidden, HttpResponseNotFound, HttpResponseRedirect
 from django.contrib import messages
 
 from business.config import app_config
-from business.gallery.service import MediaGalleryService ,MediaView, SearchResult, CollectionPreview
-from business.authentication.service import Token, AuthService
+from business.gallery.service import MediaGalleryService ,SearchResult, Insight
+from business.authentication.service import AuthService
 from business.db.media_service import MediaDBService
 from business.encryption.service import DecryptService
-from business.db.user_service import UserDBService, UserRequest
-from typing import List
+from business.db.user_service import UserDBService
+from business.db.insights_service import InsightEngineService
+from business.gallery.media_service import MediaViewService
 
 debug_mode = False if app_config.DEBUG == 0 else True
 
@@ -20,6 +23,8 @@ debug_mode = False if app_config.DEBUG == 0 else True
 decrypt_service = DecryptService(private_key_location=app_config.PRIVATE_KEY_LOCATION)
 media_db_service = MediaDBService(host=app_config.MEDIA_DB_HOST, port=app_config.MEDIA_DB_PORT)
 user_db_service = UserDBService(host=app_config.USER_DB_HOST, port=app_config.USER_DB_PORT)
+
+engine_service = InsightEngineService(db_media_service=media_db_service)
 auth_service = AuthService(db_user_service=user_db_service,
                            jwt_key_location=app_config.JWT_KEY_LOCATION,
                             )
@@ -28,6 +33,10 @@ gallery_service = MediaGalleryService(decrypt_service=decrypt_service,
                                       media_db_service=media_db_service,
                                       local_cache_location=app_config.LOCAL_CACHE_LOCATION,
                                       debug_mode=debug_mode)
+media_service = MediaViewService(media_db_service=media_db_service,
+                                 decrypt_service=decrypt_service,
+                                 user_db_service=user_db_service,
+                                 engine_service=engine_service)
 
 def login_page(request: HttpRequest):
     if request.method == 'POST':
@@ -121,7 +130,7 @@ def view_album(request: HttpRequest, engine_type, collection_name, page_number):
 @auth_service.login_required()
 def view_media(request, engine_type, collection_name, page_number, media_id):
     try:
-        media_item = gallery_service.get_media_content(token=request.user.token_data.auth_token,
+        media_item = media_service.get_media_content(token=request.user.token_data.auth_token,
                                                     media_id=media_id, user_id=request.user.id)
     except FileNotFoundError as err:
         return HttpResponseNotFound(content=str(err))
@@ -131,9 +140,9 @@ def view_media(request, engine_type, collection_name, page_number, media_id):
         collection, nav_object = gallery_service.get_collection_for_user(token=request.user.token_data.auth_token, collection_name=collection_name, engine_type=engine_type, page_number=page_number-1)
     except Exception as err:
         logger.warning(f"Failed to get nav content: {str(err)}")
-    insight_list = job_list = None
+    grouped_insights: None | Dict[str,Dict[str,List[Insight]]] = None
     try:
-        insight_list,job_list = gallery_service.get_media_insights(token=request.user.token_data.auth_token,media_id=media_id)
+        grouped_insights = media_service.get_media_insights(token=request.user.token_data.auth_token,media_id=media_id)
     except Exception as err:
         logger.warning(f"Failed to get insights: {str(err)}")
     context = {
@@ -144,8 +153,7 @@ def view_media(request, engine_type, collection_name, page_number, media_id):
         "engine_type": engine_type,
         "page": page_number,
         "search_needed": True,
-        "insights": insight_list,
-        "jobs": job_list
+        "grouped_insights": grouped_insights
     }
     
     return render(request, 'base/view_media.html', context)

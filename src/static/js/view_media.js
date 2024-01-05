@@ -77,4 +77,12 @@ function update_displayed_bounding_boxes(){
     })
   }
 
-  window.addEventListener('resize', update_displayed_bounding_boxes)
+function expand_row(row_id){
+    row_DOM = document.getElementById(row_id)
+    row_DOM.classList.toggle("d-none")
+}
+
+window.addEventListener('resize', update_displayed_bounding_boxes)
+
+const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
