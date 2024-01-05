@@ -17,39 +17,10 @@ from project_shkedia_models.jobs import InsightJobStatus
 from project_shkedia_models.insights import InsightObjectEnum
 from business.encryption.service import DecryptService
 from business.db.user_service import UserDBService, User, Device
-from business import utils
+
+from .models import Page, MediaView
 
 # Caching mechanism
-
-class Page(BaseModel):
-    page_number: int
-    items: Any
-    number_of_pages: int
-
-class MediaView(MediaThumbnail):
-    thumbnail: str
-    user: User | None = None
-    device: Device | None = None
-
-    @property
-    def canvas_thumbnail(self):
-        return self.thumbnail
-    
-    @property
-    def canvas_right_description(self):
-        return utils.sizeof_fmt(self.media_size_bytes)
-    
-    @property
-    def canvas_left_description(self):
-        return self.created_on.strftime("%d/%m %H:%M")
-    
-    @property
-    def canvas_url_base(self):
-        return f"media_view"
-    
-    @property
-    def canvas_url_id(self):
-        return self.media_id
 
 class MediaGalleryService():
 
