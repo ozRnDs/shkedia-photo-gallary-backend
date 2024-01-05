@@ -17,5 +17,5 @@ class InsightEngineService:
     def get_engine_name_by_id(self, engine_id):
         for engine in self.engines:
             if engine.id ==engine_id:
-                return engine_id
+                return engine.name
         raise FileNotFoundError(f"Could not find the requested engine: {engine_id}")
