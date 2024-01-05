@@ -1,3 +1,4 @@
+import sys
 import logging
 logger = logging.getLogger(__name__)
 from typing import List
@@ -11,7 +12,7 @@ from project_shkedia_models.media import MediaRequest, MediaDB, MediaObjectEnum,
 from project_shkedia_models.search import SearchResult
 from project_shkedia_models.collection import CollectionPreview
 from project_shkedia_models.jobs import InsightJob
-from project_shkedia_models.insights import Insight
+from project_shkedia_models.insights import Insight, InsightEngineObjectEnum
 
 class MediaDBService:
 
@@ -37,13 +38,42 @@ class MediaDBService:
             return MediaDB(**insert_response.json())
         raise Exception(insert_response.json()["detail"])
     
-    def get(self, token: Token, media_id) -> MediaDB:
+    def get_media_by_id(self, token: Token, media_id) -> MediaDB:
         insert_url = self.service_url+"/v1/media/"+media_id
         insert_response = requests.get(insert_url, headers=token.get_token_as_header())
 
         if insert_response.status_code == 200:
             return MediaDB(**insert_response.json())
         raise Exception(insert_response.json()["details"])
+
+    def get_all_engines(self, response_type: InsightEngineObjectEnum=InsightEngineObjectEnum.InsightEngine):
+        get_all_engines_url = self.service_url+"/v3/insight-engines"
+
+        params = {
+            "response_type" : response_type.value
+        }
+
+        s = requests.Session()
+
+        retries = Retry(total=5,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504])
+
+        s.mount('http://', HTTPAdapter(max_retries=retries))
+
+        search_response = requests.get(get_all_engines_url,params=params)
+
+        s.close()
+
+        if search_response.status_code == 200:
+            response_model = getattr(sys.modules["project_shkedia_models.insights"], response_type.value)
+            return [response_model(**engine_item) for engine_item in search_response.json()]
+        if search_response.status_code == 404:
+            raise FileNotFoundError()
+        if search_response.status_code == 401:
+            raise PermissionError(search_response.json()["detail"])
+        raise Exception(search_response.json()["detail"])
+
 
     def get_collection_media(self, token:Token, collection_name, engine_type, **kargs) -> List[MediaThumbnail]:
         get_collection_by_name = self.service_url+f"/v2/insights-engines/{engine_type}/collections/{collection_name}/media"
