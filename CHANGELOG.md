@@ -1,3 +1,11 @@
+## 0.5.2 (2024-01-05)
+
+### Refactor
+
+- **dev/mock_user**: Adjust to project_shkedia_models
+- **src**: Adjust project to use project_shkedia_models library. Adapt project to new db_media api
+- **gallery/service**: Add traceback print to the _refresh_cache_ function
+
 ## 0.5.1 (2023-12-13)
 
 ### Fix
