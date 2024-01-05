@@ -14,6 +14,7 @@ from project_shkedia_models.collection import CollectionPreview
 from business.image_processing.service import ImageProcessingService
 from business.db.media_service import MediaDBService, MediaDB, SearchResult, MediaObjectEnum, MediaThumbnail, Insight, InsightJob
 from project_shkedia_models.jobs import InsightJobStatus
+from project_shkedia_models.insights import InsightObjectEnum
 from business.encryption.service import DecryptService
 from business.db.user_service import UserDBService, User, Device
 from business import utils
@@ -196,7 +197,7 @@ class MediaGalleryService():
         return media
     
     def get_media_insights(self, token, media_id):
-        insights_list = self.media_db_service.search_insights(token,media_id=media_id)
+        insights_list = self.media_db_service.search_insights(token,media_id=media_id,response_type=InsightObjectEnum.Insight)
         jobs_list = self.media_db_service.search_jobs(token, media_id=media_id)
         jobs_list = [job_item for job_item in jobs_list if job_item.status != InsightJobStatus.DONE]
 

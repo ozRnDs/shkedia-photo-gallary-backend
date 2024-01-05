@@ -1,5 +1,5 @@
 {% extends 'main.html' %}
-
+{% load static %}
 {% block content %}
 
 <div class="container-fluid tm-container-content tm-mt-60">
@@ -23,8 +23,9 @@
 
 
     <div class="row tm-mb-90">
-        <div class="col-xl-8 col-lg-7 col-md-6 col-sm-12">
-            <img src="data:image/png;base64,{{ media.thumbnail }}" alt="Image" class="img-fluid-wide">
+        <div class="col-xl-8 col-lg-7 col-md-6 col-sm-12" style="position: relative">
+            <img src="data:image/png;base64,{{ media.thumbnail }}" alt="Image" class="img-fluid-wide" id="{{ media.media_id }}">
+            <div id="boundingboxes"></div>
         </div>
         <div class="col-xl-4 col-lg-5 col-md-6 col-sm-12">
             <div class="tm-bg-gray tm-video-details">
@@ -61,8 +62,15 @@
                     {% if insights %}
                         <h3 class="tm-text-gray-dark mb-3">Automatic Insights</h3>
                         {% for insight in insights %}
+
                         <div class="col-12 mb-2">
-                            <span class="tm-text-gray-dark">Months: </span><span class="tm-text-primary">{{ insight.name }}</span>
+                            <span class="tm-text-gray-dark">{{ insight.insight_engine.id }} </span><span class="tm-text-primary" 
+                            {% if insight.bounding_box %}
+                                onclick="displayBoundingBox('{{ insight.media_id }}','{{ insight.id }}',
+                                {{ insight.get_bounding_box.x1 }},
+                                {{ insight.get_bounding_box.y1 }},{{ insight.get_bounding_box.x2 }},{{ insight.get_bounding_box.y2 }})"
+                            {% endif %}
+                            >{{ insight.name }} </span>
                         </div>
                         {% endfor %}
                     {% endif %}
@@ -192,5 +200,8 @@
     </div>
     {% endcomment %}
 </div> <!-- container-fluid, tm-container-content -->
+
+    <script src="{% static 'js/view_media.js' %}"></script>
+
 {% include 'base/side_offcanvas.html' %}
 {% endblock %}

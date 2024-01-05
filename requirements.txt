@@ -1,4 +1,4 @@
-project-shkedia-models>=0.5.0
+project-shkedia-models>=0.6.0
 Django
 requests
 pydantic
