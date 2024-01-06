@@ -150,8 +150,12 @@ class MediaDBService:
             status_forcelist=[429, 500, 502, 503, 504])
 
         s.mount('http://', HTTPAdapter(max_retries=retries))
-
-        search_response = requests.get(search_collection_url,params=kargs, headers=token.get_token_as_header())
+        try:
+            search_response = requests.get(search_collection_url,params=kargs, headers=token.get_token_as_header())
+        except requests.exceptions.ConnectionError as err:
+            logger.warning(str(err))
+            s.close()
+            raise ConnectionError("Can't connect to database microservice")
 
         s.close()
 
