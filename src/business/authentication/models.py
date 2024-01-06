@@ -14,6 +14,9 @@ class Token(BaseModel):
     def get_token_as_string(self):
         return self.token_type + " " + self.access_token
     
+    def __hash__(self) -> int:
+        return self.access_token.__hash__() # or self.id.__hash__()
+
     @staticmethod
     def get_token_from_request(request: HttpRequest):
         if "Authorization" in request.headers:
