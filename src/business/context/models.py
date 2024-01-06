@@ -13,14 +13,9 @@ class PageMetadata(BaseModel):
     def pages_list(self):
         return (list)(range(1,self.number_of_pages+1))
 
-class BaseBreadcrum(BaseModel):
-    name: str
-
-
 class BaseCanvas(BaseModel):
     view_type: str
     nav_list: Union[List[MediaView],List[CollectionPreview]]
-    breadcrumbs: List[BaseBreadcrum] = []
 
 class BaseContext(BaseModel):
     navigator: List[InsightEngineValues] | None = None

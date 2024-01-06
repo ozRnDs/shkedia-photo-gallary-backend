@@ -242,7 +242,8 @@ a.tm-text-primary:hover { color:#666666; }
 }
 
 .tm-search-input {
-    width: 360px;
+    width: 100%;
+    max-width: 360px;
     border-radius: 0;
     padding: 12px 15px;
     color: #009999;
@@ -267,7 +268,8 @@ a.tm-text-primary:hover { color:#666666; }
     color: white;
     background-color: #009999;
     border: none;
-    width: 100px;
+    width: 100%;
+    max-width: 360px;
     height: 50px;
     margin-left: -1px;
 }
@@ -615,7 +617,7 @@ select:not([multiple]) {
 
     .tm-search-input {
         width: 100%;
-        max-width: 360px;
+
     }
 
     .tm-people-row { max-width: 420px; }

@@ -2,28 +2,42 @@
 
 
 
-<div class="tm-hero d-flex justify-content-center align-items-center" data-parallax="scroll" data-image-src="{% static 'img/image.png' %}">
-    {% comment %}
+<div class="col-12 tm-hero d-flex align-items-center justify-content-around" data-parallax="scroll" data-image-src="{% static 'img/image.png' %}">
     {% if search_needed %}
-    <form class="d-flex tm-search-form">
-        <input class="form-control tm-search-input" type="search" placeholder="Search" aria-label="Search">
-        <button class="btn btn-outline-success tm-search-btn" type="submit">
-            <i class="fas fa-search"></i>
-        </button>
+    <div class="col-8 d-flex flex-column justify-content-center align-items-center">
+            <select id="engine_selector" name="engine_type" class="tm-search-input col-6 m-2" onchange="updateChild()">
+                {% for item in navigator %}
+                    <option value="{{ item.name }}">{{ item.name|capfirst }}</option>
+                {% endfor %}
+            </select>
+            <select id="collection_selector" name="collection_name" class="tm-search-input col-6 m-2">
+                        <option value="" engine_name="">All</option>
+                {% for item in navigator %}
+                    {% for insight in item.insights_names %}
+                        <option value="{{ insight }}" engine_name="{{ item.name }}">{{ insight|lower|capfirst }}</option>
+                    {% endfor %}
+                {% endfor %}
+            </select>
+            <button  class="btn btn-outline-success tm-search-btn col-6 m-2" onclick="launchCollection()">
+                <i id="btn_collection" class="fas fa-search"></i>
+            </button>
+    </div>
+    {% comment %}
+    <form class="tm-search-form col-2">
+            <input class="tm-search-input m-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success tm-search-btn m-2" type="submit">
+                <i class="fas fa-search"></i>
+            </button>
     </form>
-    {% endif %}
     {% endcomment %}
+    {% endif %}
     {% if login_needed %}
-
-        <form method="POST" action="" class="tm-search-form"> 
-            {% csrf_token %}
-            <input type="text" name="username" placeholder="Enter Username"  class="from-control tm-search-input"/>
-            
-            <input type="password" name="password" placeholder="Enter Password" class="from-control tm-search-input"/>
-
-            <input type="submit" value="Login" class="btn btn-outline-success tm-search-btn"/>
-        </form>
-
+        <form method="POST" action="" class="tm-search-form d-flex flex-column justify-content-center align-items-center">
+          {% csrf_token %}
+          <input type="text" name="username" placeholder="Enter Username" class="tm-search-input col-6 m-2"/>
+          <input type="password" name="password" placeholder="Enter Password" class="tm-search-input col-6 m-2"/>
+          <input type="submit" value="Login" class="btn btn-outline-success tm-search-btn col-6 m-2"/>
+        </form>            
     {% endif %}
 </div>
 
@@ -47,3 +61,5 @@
             {% endif %}
     {% endfor %}
 {% endif %}
+
+<script src="{% static 'js/nav.js' %}"></script>
