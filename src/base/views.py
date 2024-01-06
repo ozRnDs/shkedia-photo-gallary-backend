@@ -82,6 +82,8 @@ def albums(request: HttpRequest, page_number):
         album_list: SearchResult = gallery_service.get_collections_for_user(token=request.user.token_data.auth_token,engine_type=engine_type, page_number=page_number-1)
     except PermissionError as err:
         return HttpResponseRedirect(redirect_to="/login")
+    except ConnectionError as err:
+        return HttpResponseRedirect(redirect_to="/about?error=connection")
 
     # page_object = gallery_service.get_page_content(album_list, page_number)
     if album_list.total_results_number==0:
