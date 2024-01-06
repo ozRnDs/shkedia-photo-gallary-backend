@@ -69,11 +69,14 @@ class AuthService:
 
                     return view_response
                 except PermissionError as err:
-                    response = HttpResponseRedirect(self.login_redirect_path)
+                    response = HttpResponseRedirect(f"self.login_redirect_path?redirect_to={request.path}")
                     response.set_cookie("session", "Expired")
                     return response
-                # except ValueError as err:
-                #     return HttpResponseRedirect(self.login_redirect_path)
+                except ValueError as err:
+                    if str(err)=="No valid session":
+                        return HttpResponseRedirect(self.login_redirect_path)
+                    traceback.print_exc()
+                    return HttpResponseServerError(content="Internal Server Error")
                 except Exception as err:
                     traceback.print_exc()
                     logger.error(str(err))
