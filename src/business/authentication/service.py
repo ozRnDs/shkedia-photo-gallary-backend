@@ -69,7 +69,7 @@ class AuthService:
 
                     return view_response
                 except PermissionError as err:
-                    response = HttpResponseRedirect(f"self.login_redirect_path?redirect_to={request.path}")
+                    response = HttpResponseRedirect(f"{self.login_redirect_path}?redirect_to={request.path}")
                     response.set_cookie("session", "Expired")
                     return response
                 except ValueError as err:
