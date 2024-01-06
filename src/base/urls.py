@@ -9,8 +9,8 @@ urlpatterns = [
     path('login/', views.login_page, name="login"),
     path('logout/', views.logout_page, name="logout"),
 
-    path('albums/<int:page_number>', views.albums, name="albums"),
-    path('album/<str:engine_type>/<str:collection_name>/<int:page_number>', views.view_album, name="album_view"),
+    path('collections/<str:engine_type>/<int:page_number>', views.albums, name="albums"),
+    path('collections/<str:engine_type>/<str:collection_name>/<int:page_number>', views.view_album, name="album_view"),
     
-    path('media/<str:engine_type>/<str:collection_name>/<int:page_number>/<str:media_id>', views.view_media, name="media_view"),
+    path('medias/<str:engine_type>/<str:collection_name>/<int:page_number>/<str:media_id>', views.view_media, name="media_view"),
 ]

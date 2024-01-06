@@ -8,7 +8,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, HttpResponseForbidden, HttpResponseNotFound, HttpResponseRedirect
 from django.contrib import messages
 
-import business.utils
+# import business.utils
 
 from business.config import app_config
 from business.gallery.service import MediaGalleryService ,SearchResult, Insight
@@ -18,6 +18,7 @@ from business.encryption.service import DecryptService
 from business.db.user_service import UserDBService
 from business.db.insights_service import InsightEngineService
 from business.gallery.media_service import MediaViewService
+from business.context.models import BaseCanvas, BaseContext, PageMetadata
 
 debug_mode = False if app_config.DEBUG == 0 else True
 
@@ -71,16 +72,16 @@ def logout_page(request: HttpRequest):
 @auth_service.login_required()
 def home(request: HttpRequest):
 
-    return albums(request, page_number=1)
+    return albums(request, engine_type="months",page_number=1)
 
 @auth_service.login_required()
-def albums(request: HttpRequest, page_number):
+def albums(request: HttpRequest, engine_type, page_number):
 
 
     # gallery_service.__refresh_cache__(token=request.user.token_data.auth_token,
     #                                   user_id=request.user.id)
     
-    engine_type = request.GET.get("engine_type") if request.GET.get("engine_type") else "months"
+    # engine_type = request.GET.get("engine_type") if request.GET.get("engine_type") else "months"
 
     try:
         album_list: SearchResult = gallery_service.get_collections_for_user(token=request.user.token_data.auth_token,engine_type=engine_type, page_number=page_number-1)
@@ -96,15 +97,14 @@ def albums(request: HttpRequest, page_number):
     if page_number > album_list.number_of_pages:
         return albums(request, album_list.number_of_pages)
 
-    context = {
-        "engine_type": engine_type,
-        "album_list": album_list.results,
-        "page": page_number,
-        "pages_list": range(1,album_list.number_of_pages+1),
-        "search_needed": True
-    }
+    context = BaseContext(page=PageMetadata(current_page=page_number,number_of_pages=album_list.number_of_pages),
+                          search_needed=True,
+                          content={
+                            "engine_type": engine_type,
+                            "album_list": album_list.results
+                          })
 
-    return render(request, 'base/albums.html', context)
+    return render(request, 'base/albums.html', dict(context))
 
 @auth_service.login_required()
 def view_album(request: HttpRequest, engine_type, collection_name, page_number):
@@ -120,18 +120,19 @@ def view_album(request: HttpRequest, engine_type, collection_name, page_number):
     except PermissionError as err:
         return HttpResponseRedirect(redirect_to="/login")
     
-    context = {
-        "engine_type": engine_type,
-        "view_type": "album",
-        "nav_list": album_list.results,
-        "album_name": collection.name,
-        "media_list": gallery_service.decrypt_list_of_medias(page_object.items),
-        "page": page_number,
-        "pages_list": range(1,page_object.number_of_pages+1),
-        "search_needed": True
-    }
+    context = BaseContext(page=PageMetadata(current_page=page_number, number_of_pages=page_object.number_of_pages),
+                          canvas=BaseCanvas(
+                              view_type="album",
+                              nav_list=album_list.results),
+                          search_needed=True,
+                          content={
+                            "engine_type": engine_type,
+                            "album_name": collection.name,
+                            "media_list": gallery_service.decrypt_list_of_medias(page_object.items),                              
+                          }
+                          )
 
-    return render(request, 'base/view_album.html', context)
+    return render(request, 'base/view_album.html', dict(context))
 
 @auth_service.login_required()
 def view_media(request, engine_type, collection_name, page_number, media_id):
@@ -151,18 +152,21 @@ def view_media(request, engine_type, collection_name, page_number, media_id):
         media_details = media_service.get_media_insights(token=request.user.token_data.auth_token,media_id=media_id)
     except Exception as err:
         logger.warning(f"Failed to get insights: {str(err)}")
-    context = {
-        "nav_list": gallery_service.decrypt_list_of_medias(nav_object.items),
-        "view_type": "media",
-        "media": media_item,
-        "album_name": collection_name,
-        "engine_type": engine_type,
-        "page": page_number,
-        "search_needed": True,
-        "media_details": media_details
-    }
-    
-    return render(request, 'base/view_media.html', context)
+
+    context = BaseContext(page=PageMetadata(current_page=page_number),
+                          canvas=BaseCanvas(
+                              view_type="media",
+                              nav_list= gallery_service.decrypt_list_of_medias(nav_object.items)),
+                          search_needed=True,
+                          content={
+                            "media": media_item,
+                            "album_name": collection_name,
+                            "engine_type": engine_type,
+                            "media_details": media_details                          
+                          }
+                          )
+   
+    return render(request, 'base/view_media.html', dict(context))
 
     return HttpResponse(f"This is media number: {media_id}")
 
