@@ -40,31 +40,9 @@ class MediaGalleryService():
         self.decrypt_service = decrypt_service
         self.debug_mode = debug_mode
         self.local_cache_location = local_cache_location
-        self.cache_object = self.__load_cache_locally__()
         self.caching_retention = caching_retention_time_minutes
 
 
-    def __load_cache_locally__(self):
-        local_cache_file_location = self.local_cache_location
-        try:
-            if os.path.exists(local_cache_file_location):
-                with open(local_cache_file_location,"rb") as file:
-                    logger.info("Loading Media from cache")
-                    cache_object = pickle.load(file)
-                    for user in cache_object:
-                        cache_object[user].unlock()
-                    return cache_object
-        except Exception as err:
-            traceback.print_exc()
-            logger.warning(f"Could not load local cache: {str(err)}")
-        return {}
-
-    def __save_cache_locally__(self):
-        logger.info("Backing up cache object")
-        local_cache_file_location=self.local_cache_location
-        with open(local_cache_file_location, "wb") as file:
-            pickle.dump(self.cache_object,file, protocol=pickle.HIGHEST_PROTOCOL)
-            
     @cached(cache=TTLCache(maxsize=10, ttl=timedelta(hours=1), timer=datetime.now))
     def get_collections_for_user(self, token, engine_type, page_number=0, page_size=16):
         # self.__refresh_cache__(token=token, user_id=user_id, engine_type)
