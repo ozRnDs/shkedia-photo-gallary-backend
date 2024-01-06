@@ -100,6 +100,7 @@ def albums(request: HttpRequest, engine_type, page_number):
     context = BaseContext(page=PageMetadata(current_page=page_number,number_of_pages=album_list.number_of_pages),
                           navigator=engine_service.engines,
                           search_needed=True,
+                          upload_url=app_config.UPLOAD_URL,
                           content={
                             "engine_type": engine_type,
                             "album_list": album_list.results
@@ -123,6 +124,7 @@ def view_album(request: HttpRequest, engine_type, collection_name, page_number):
     
     context = BaseContext(page=PageMetadata(current_page=page_number, number_of_pages=page_object.number_of_pages),
                           navigator=engine_service.engines,
+                          upload_url=app_config.UPLOAD_URL,
                           canvas=BaseCanvas(
                               view_type="album",
                               nav_list=album_list.results),
@@ -157,6 +159,7 @@ def view_media(request, engine_type, collection_name, page_number, media_id):
 
     context = BaseContext(page=PageMetadata(current_page=page_number),
                           navigator=engine_service.engines,
+                          upload_url=app_config.UPLOAD_URL,
                           canvas=BaseCanvas(
                               view_type="media",
                               nav_list= gallery_service.decrypt_list_of_medias(nav_object.items)),

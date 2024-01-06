@@ -19,6 +19,7 @@ class ApplicationConfiguration:
     MEDIA_REPO_PORT: str = "4432"
     USER_DB_HOST: str = "10.0.0.5"
     USER_DB_PORT: str = "4430"
+    UPLOAD_URL: str = ""
 
     # Image Processing Parameters
     THUMBNAIL_MAX_WIDTH: int = 500
@@ -30,7 +31,7 @@ class ApplicationConfiguration:
 
     LOCAL_CACHE_LOCATION: str = "/temp/local_cache.pickle"
 
-    ALLOWED_HOST: str = "CHANGE ME"
+    ALLOWED_HOST: str = "http://10.0.0.5:25001/images/v2"
 
     DEBUG: int = 1
     

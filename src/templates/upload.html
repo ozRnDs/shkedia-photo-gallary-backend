@@ -1,0 +1,46 @@
+{% load static %}
+<!-- Modal -->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="staticBackdropLabel" class="navbar-brand tm-text-primary">Upload Media</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="uploadForm" enctype="multipart/form-data" method="post" action="{{ upload_url }}">
+            {% csrf_token %}
+            <div class="modal-body d-flex flex-column justify-content-center align-items-center">
+                <select id="device_id" name="device_id" class="tm-search-input" placeholder="Choose Device">
+                  {% for device_item in request.user.devices %}
+                    <option value="{{ device_item.device_id }}">{{ device_item.device_name }}</option>
+                  {% endfor %}
+                </select>
+                <input type="file" class="tm-search-input" placeholder="Choose an Image file" id="fileInput" name="image" accept="image/*">
+            </div>
+            <div class="modal-footer d-flex align-items-center">
+                <p id="error_message" class="" style="margin-right: auto;"></p>
+                <button type="submit" class="btn btn-outline-success tm-search-btn" style="max-width: 150px"><i id="btn_upload" class="fas fa-cloud-upload-alt"></i></button>   
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="uploadDone" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title navbar-brand tm-text-primary" id="staticBackdropLabel">Upload Success!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex flex-column justify-content-center align-items-center">
+                Your file is in! 🎉 Sit back, relax, and let the system do its thing.
+            </div>
+            <div class="modal-footer d-flex align-items-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cool, thanks!</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+  <script src="{% static 'js/upload.js' %}"></script>

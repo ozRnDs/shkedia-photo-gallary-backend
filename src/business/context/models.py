@@ -21,6 +21,7 @@ class BaseContext(BaseModel):
     navigator: List[InsightEngineValues] | None = None
     canvas: BaseCanvas | None = None
     page: PageMetadata | None = None
+    upload_url: str = ""
     search_needed: bool = True
     content: dict = {}
 

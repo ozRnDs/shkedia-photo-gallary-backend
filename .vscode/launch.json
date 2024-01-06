@@ -34,7 +34,8 @@
                 "THUMBNAIL_MAX_WIDTH": "500",
                 "THUMBNAIL_MAX_HEIGHT": "500",
                 "DEBUG": "1",
-                "ALLOWED_HOST": "10.0.0.5"
+                "ALLOWED_HOST": "10.0.0.5",
+                "UPLOAD_URL": "http://10.0.0.5:25001/images/v2"
             }
         }
     ]

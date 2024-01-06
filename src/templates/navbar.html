@@ -21,6 +21,9 @@
                 <li class="nav-item">
                     <a class="nav-link nav-link-1" aria-current="page" href="/">Photos</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link nav-link-1" aria-current="page" href="#" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Upload</a>
+                </li>
                 {% endif %}
                 <li class="nav-item dropdown">
                     <a class="nav-link nav-link-2" href="#" data-toggle="dropdown">About</a>
@@ -44,3 +47,5 @@
         </div>
     </div>
 </nav>
+
+{% include 'upload.html' %}

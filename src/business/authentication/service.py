@@ -12,7 +12,7 @@ from pydantic import BaseModel
 from datetime import timedelta, datetime
 
 
-from business.db.user_service import UserDBService, UserRequest, User
+from business.db.user_service import UserDBService, UserRequest, User, Device
 from business.authentication.models import Token
 
 
@@ -47,12 +47,14 @@ class AuthService:
         gallery_access_token = self.create_access_token(data=gallery_token_data.model_dump())
         response = HttpResponseRedirect(redirect_to)
         response.set_cookie("session", gallery_access_token)
+        response.set_cookie("forward", auth_token.access_token)
         return response
 
     
     def log_out(self, redirect_to: str="/about"):
         response = HttpResponseRedirect(redirect_to=redirect_to)
         response.delete_cookie("session")
+        response.delete_cookie("forward")
         return response
 
     def login_required(self):
@@ -64,7 +66,8 @@ class AuthService:
                     user_data = self.user_db_service.search_user(token_data.auth_token,
                                                                  search_value=token_data.sub)
                     request.user.id = user_data.user_id
-
+                    request.user.devices = self.user_db_service.search_device(token_data.auth_token,search_field="owner_id",
+                                                                      search_value=user_data.user_id)
                     view_response = func(request, *args, **kargs)
 
                     return view_response
@@ -74,7 +77,7 @@ class AuthService:
                     return response
                 except ValueError as err:
                     if str(err)=="No valid session":
-                        return HttpResponseRedirect(self.login_redirect_path)
+                        return HttpResponseRedirect(f"{self.login_redirect_path}?redirect_to={request.path}")
                     traceback.print_exc()
                     return HttpResponseServerError(content="Internal Server Error")
                 except Exception as err:
