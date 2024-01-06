@@ -61,8 +61,9 @@
                 <div class="table-responsive">
                     {% if media_details.grouped_insights %}
                         <h3 class="tm-text-gray-dark mb-3">Automatic Insights</h3>
-                        <table class="table table-hover bg-transparent">
+                        <table class="table table-sm">
                             <thead><tr>
+                                <th scope="col"></th>
                                 <th scope="col" class="tm-text-gray-dark">Engine</th>
                                 <th scope="col" class="tm-text-gray-dark">Detected</th>
                                 <th scope="col" class="tm-text-gray-dark">Intances</th>
@@ -73,14 +74,15 @@
                                 {% for engine,insights_groups in media_details.grouped_insights.items %}
                                     {% for key,insights_list in insights_groups.items %}
                                 <tr>
+                                    <td data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Expand" onclick="expand_row('{{ key }}')"><i id="toggle-{{ key }}"class="fas fa-caret-right" onclick="expand_row('{{ key }}')"></i></td>
                                     <td class="tm-text-primary">{{ engine }}</td>
-                                    <td class="tm-text-primary" data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Click to Expands" onclick="expand_row('{{ key }}')">{{ key }}</td>
+                                    <td class="tm-text-primary">{{ key }}</td>
                                     <td class="tm-text-primary">{{ insights_list|length }}</td>
                                     <td data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Search {{ key }}"><a href="{% url 'album_view' engine key 1 %}"><i class="fas fa-search"></i></a></td>
                                 </tr>
                                 <tr id={{ key }} class="d-none">
                                     <td colspan="100%">
-                                       <table class="table table-hover table-sm">
+                                       <table class="table table-sm">
                                         <thead>
                                             <tr>
                                                 <th scope="col" class="tm-text-gray-light">ID</th>
@@ -91,14 +93,16 @@
                                         <tbody>
                                             {% for insight in insights_list %}
                                             <tr>
-                                            <div class="col-3 tm-text-primary" 
-                                            {% if insight.bounding_box %}
-                                                data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Click to view"
-                                                onclick="displayBoundingBox('{{ insight.media_id }}','{{ insight.id }}',
-                                                {{ insight.get_bounding_box.x1 }},
-                                                {{ insight.get_bounding_box.y1 }},{{ insight.get_bounding_box.x2 }},{{ insight.get_bounding_box.y2 }})"
-                                            {% endif %}
-                                       >{{ insight.name }}-{{ forloop.counter }} </div>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ insight.status }}</td>
+                                                <td>
+                                                {% if insight.bounding_box %}
+                                                    <i class="far fa-eye-slash" id="eye-{{ insight.id }}"
+                                                    onclick="displayBoundingBox('{{ insight.media_id }}','{{ insight.id }}',{{ forloop.counter }},
+                                                    {{ insight.get_bounding_box.x1 }},
+                                                    {{ insight.get_bounding_box.y1 }},{{ insight.get_bounding_box.x2 }},{{ insight.get_bounding_box.y2 }})"></i>
+                                                {% endif %}
+                                                </td>
                                         </tr>
                                        {% endfor %}
                                         </tbody>
@@ -115,7 +119,7 @@
                 <div class="table-responsive">
                     {% if media_details.jobs_list %}
                         <h3 class="tm-text-gray-dark mb-3">Image Processing</h3>
-                        <table class="table table-hover bg-transparent">
+                        <table class="table table-sm">
                             <thead><tr>
                                 <th scope="col" class="tm-text-gray-dark">Engine</th>
                                 <th scope="col" class="tm-text-gray-dark">Created</th>

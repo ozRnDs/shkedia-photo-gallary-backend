@@ -39,6 +39,7 @@ class BoundingBoxElement{
         boundingBox_DOM.style.position = "absolute";
         boundingBox_DOM.style.border = "1px solid red";
         boundingBox_DOM.style.boxSizing="border-box";
+        boundingBox_DOM.style.color="red"
     }
 
     updateDisplay(){
@@ -54,21 +55,28 @@ class BoundingBoxElement{
 
 const bounding_boxes_elements = new Map();
 
-function add_boundingbox_element(bboxes_wrapper,bounding_box_element) {
+function add_boundingbox_element(bboxes_wrapper,bounding_box_element,index) {
     const bbox_wrapper_element = document.getElementById(bboxes_wrapper)
-    bbox_wrapper_element.innerHTML += `<div id=${bounding_box_element}></div>`
+    bbox_wrapper_element.innerHTML += `<div id=${bounding_box_element}> ${index}</div>`
 }
 
-function displayBoundingBox(image_id,bounding_box_element, x1, y1, x2, y2) {
-    const image = document.getElementById(image_id);
-    if (!bounding_boxes_elements.has(bounding_box_element)){
-        add_boundingbox_element("boundingboxes",bounding_box_element);
-        bounding_boxes_elements.set(bounding_box_element, new BoundingBoxElement(image_id, bounding_box_element,x1,y1,x2,y2))
+function displayBoundingBox(image_id,bounding_box_id,index, x1, y1, x2, y2) {
+    if (!bounding_boxes_elements.has(bounding_box_id)){
+        add_boundingbox_element("boundingboxes",bounding_box_id,index);
+        bounding_boxes_elements.set(bounding_box_id, new BoundingBoxElement(image_id, bounding_box_id,x1,y1,x2,y2))
     }
-    const boundingBox = bounding_boxes_elements.get(bounding_box_element)
+    const boundingBox = bounding_boxes_elements.get(bounding_box_id)
     // Get the original image dimensions:
 	boundingBox.updateBoundingBoxSize()
     boundingBox.updateDisplay()
+    const eye_icon_DOM = document.getElementById("eye-"+bounding_box_id)
+
+    eye_icon_DOM.classList.toggle("fa-eye")
+    eye_icon_DOM.classList.toggle("fa-eye-slash")
+    const currentTitle = eye_icon_DOM.getAttribute('data-bs-title')
+    const newTitle = (currentTitle === 'Show') ? 'Show' : 'Hide';
+    eye_icon_DOM.setAttribute('data-bs-title', newTitle)
+    
   }
 
 function update_displayed_bounding_boxes(){
@@ -79,7 +87,10 @@ function update_displayed_bounding_boxes(){
 
 function expand_row(row_id){
     row_DOM = document.getElementById(row_id)
+    expand_DOC = document.getElementById("toggle-"+row_id)
     row_DOM.classList.toggle("d-none")
+    expand_DOC.classList.toggle("fa-caret-right")
+    expand_DOC.classList.toggle("fa-caret-down")
 }
 
 window.addEventListener('resize', update_displayed_bounding_boxes)
