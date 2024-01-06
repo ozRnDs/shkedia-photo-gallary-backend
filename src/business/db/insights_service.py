@@ -1,3 +1,4 @@
+from cachetools import cached, TTLCache
 from pydantic import BaseModel
 from typing import List,Dict, Any
 
@@ -11,6 +12,7 @@ class InsightEngineService:
         self.db_media_service = db_media_service        
 
     @property
+    @cached(cache=TTLCache(maxsize=100, ttl=timedelta(hours=12), timer=datetime.now))
     def engines(self) -> List[InsightEngineValues]:
         return self.db_media_service.get_all_engines(response_type=InsightEngineObjectEnum.InsightEngineValues)
 

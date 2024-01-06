@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+from cachetools import cached, TTLCache
+
 import logging
 logger = logging.getLogger(__name__)
 from pydantic import BaseModel
@@ -12,6 +15,7 @@ from project_shkedia_models.jobs import InsightJobStatus, InsightJob
 from business.encryption.service import DecryptService
 from business.image_processing.service import ImageProcessingService
 
+
 class MediaViewService:
     def __init__(self,
                  media_db_service: MediaDBService,
@@ -24,6 +28,7 @@ class MediaViewService:
         self.decrypt_service = decrypt_service
         self.engine_service=engine_service
 
+    @cached(cache=TTLCache(maxsize=100, ttl=timedelta(hours=1), timer=datetime.now))
     def get_media_content(self, token, media_id, user_id) -> MediaView:
         # media_content = [media for media in self.cache_object[user_id].list_of_images if media.media_id==media_id][-1]
         # if media_content is None:
@@ -52,6 +57,7 @@ class MediaViewService:
         jobs_list = [job_item for job_item in jobs_list if job_item.status != InsightJobStatus.DONE]
         return self.__group_data_by_engine__(insights_list=insights_list,jobs_list=jobs_list)
     
+    @cached(cache=TTLCache(maxsize=100, ttl=timedelta(hours=12), timer=datetime.now))
     def __decrypt_single_media(self, media: MediaThumbnail) -> MediaView:
         try:
             image = self.decrypt_service.decrypt(media.media_key,{"image": media.media_thumbnail})
