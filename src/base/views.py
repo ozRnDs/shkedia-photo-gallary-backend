@@ -8,6 +8,8 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpRequest, HttpResponseForbidden, HttpResponseNotFound, HttpResponseRedirect
 from django.contrib import messages
 
+import business.utils
+
 from business.config import app_config
 from business.gallery.service import MediaGalleryService ,SearchResult, Insight
 from business.authentication.service import AuthService
@@ -42,9 +44,11 @@ def login_page(request: HttpRequest):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
+        redirect_to = request.GET.get('redirect_to')
+        redirect_to = redirect_to if redirect_to else "/"
 
         try:
-            return auth_service.log_in(username=username, password=password, redirect_to="/")
+            return auth_service.log_in(username=username, password=password, redirect_to=redirect_to)
         except PermissionError:
             messages.add_message(request, messages.ERROR, "Wrong username or password")
         except Exception:
@@ -142,9 +146,9 @@ def view_media(request, engine_type, collection_name, page_number, media_id):
         collection, nav_object = gallery_service.get_collection_for_user(token=request.user.token_data.auth_token, collection_name=collection_name, engine_type=engine_type, page_number=page_number-1)
     except Exception as err:
         logger.warning(f"Failed to get nav content: {str(err)}")
-    grouped_insights: None | Dict[str,Dict[str,List[Insight]]] = None
+    media_details: None | Dict[str,Dict[str,List[Insight]]] = None
     try:
-        grouped_insights = media_service.get_media_insights(token=request.user.token_data.auth_token,media_id=media_id)
+        media_details = media_service.get_media_insights(token=request.user.token_data.auth_token,media_id=media_id)
     except Exception as err:
         logger.warning(f"Failed to get insights: {str(err)}")
     context = {
@@ -155,7 +159,7 @@ def view_media(request, engine_type, collection_name, page_number, media_id):
         "engine_type": engine_type,
         "page": page_number,
         "search_needed": True,
-        "grouped_insights": grouped_insights
+        "media_details": media_details
     }
     
     return render(request, 'base/view_media.html', context)

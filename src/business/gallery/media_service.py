@@ -15,6 +15,9 @@ from project_shkedia_models.jobs import InsightJobStatus, InsightJob
 from business.encryption.service import DecryptService
 from business.image_processing.service import ImageProcessingService
 
+class MediaViewDetails(BaseModel):
+    grouped_insights: Dict[str,Dict[str,List[Insight]]] = {}
+    jobs_list: List[InsightJob]
 
 class MediaViewService:
     def __init__(self,
@@ -39,7 +42,8 @@ class MediaViewService:
         media.device = self.user_db_service.get_device(token, device_id=media.device_id)
         return media
     
-    def __group_data_by_engine__(self, insights_list: List[Insight], jobs_list: List[InsightJob]) -> Dict[str,Dict[str,List[Insight]]]:
+
+    def __group_data_by_engine__(self, insights_list: List[Insight], jobs_list: List[InsightJob]) -> MediaViewDetails:
         collector = MediaViewInsightCollection(insights_list=insights_list,jobs_list=jobs_list)
         temp_dict = {}
         for _, insights_list in collector.group_insights.items():
@@ -49,12 +53,14 @@ class MediaViewService:
             if not engine_id in temp_dict:
                 temp_dict[engine_name] = {}
             temp_dict[engine_name][insight_name] = insights_list
-        return temp_dict
+        for job in jobs_list:
+            job.insight_engine_id = self.engine_service.get_engine_name_by_id(job.insight_engine_id)
+        return MediaViewDetails(grouped_insights=temp_dict,jobs_list=jobs_list)
 
-    def get_media_insights(self, token, media_id) -> Dict[str,Dict[str,List[Insight]]]:
+    def get_media_insights(self, token, media_id) -> MediaViewDetails:
         insights_list = self.media_db_service.search_insights(token,media_id=media_id,response_type=InsightObjectEnum.Insight)
         jobs_list = self.media_db_service.search_jobs(token, media_id=media_id)
-        jobs_list = [job_item for job_item in jobs_list if job_item.status != InsightJobStatus.DONE]
+        jobs_list = [job_item for job_item in jobs_list]
         return self.__group_data_by_engine__(insights_list=insights_list,jobs_list=jobs_list)
     
     @cached(cache=TTLCache(maxsize=100, ttl=timedelta(hours=12), timer=datetime.now))

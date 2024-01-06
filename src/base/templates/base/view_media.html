@@ -59,7 +59,7 @@
                 </div>
                 {% endif %}
                 <div class="table-responsive">
-                    {% if grouped_insights %}
+                    {% if media_details.grouped_insights %}
                         <h3 class="tm-text-gray-dark mb-3">Automatic Insights</h3>
                         <table class="table table-hover bg-transparent">
                             <thead><tr>
@@ -70,7 +70,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                                {% for engine,insights_groups in grouped_insights.items %}
+                                {% for engine,insights_groups in media_details.grouped_insights.items %}
                                     {% for key,insights_list in insights_groups.items %}
                                 <tr>
                                     <td class="tm-text-primary">{{ engine }}</td>
@@ -80,8 +80,18 @@
                                 </tr>
                                 <tr id={{ key }} class="d-none">
                                     <td colspan="100%">
-                                       {% for insight in insights_list %} 
-                                        <div class="col-3 tm-text-primary" 
+                                       <table class="table table-hover table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" class="tm-text-gray-light">ID</th>
+                                                <th scope="col" class="tm-text-gray-light">Status</th>
+                                                <th scope="col" class="tm-text-gray-light"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for insight in insights_list %}
+                                            <tr>
+                                            <div class="col-3 tm-text-primary" 
                                             {% if insight.bounding_box %}
                                                 data-bs-toggle="tooltip" data-bs-placement="left" data-bs-title="Click to view"
                                                 onclick="displayBoundingBox('{{ insight.media_id }}','{{ insight.id }}',
@@ -89,7 +99,11 @@
                                                 {{ insight.get_bounding_box.y1 }},{{ insight.get_bounding_box.x2 }},{{ insight.get_bounding_box.y2 }})"
                                             {% endif %}
                                        >{{ insight.name }}-{{ forloop.counter }} </div>
+                                        </tr>
                                        {% endfor %}
+                                        </tbody>
+                                       </table>
+                                        
                                     </td>
                                 </tr>
                                     {% endfor %}
@@ -97,23 +111,32 @@
                             </tbody>
                         </table>
                     {% endif %}
-                    {% comment %}
-                    {% if media_view_insights.insights_list %}
-                        <h3 class="tm-text-gray-dark mb-3">Automatic Insights</h3>
-                        {% for insight in media_view_insights.insights_list %}
-
-                        <div class="col-12 mb-2">
-                            <span class="tm-text-gray-dark">{{ insight.insight_engine.id }} </span><span class="tm-text-primary" 
-                            {% if insight.bounding_box %}
-                                onclick="displayBoundingBox('{{ insight.media_id }}','{{ insight.id }}',
-                                {{ insight.get_bounding_box.x1 }},
-                                {{ insight.get_bounding_box.y1 }},{{ insight.get_bounding_box.x2 }},{{ insight.get_bounding_box.y2 }})"
-                            {% endif %}
-                            >{{ insight.name }} </span>
-                        </div>
-                        {% endfor %}
+                </div>
+                <div class="table-responsive">
+                    {% if media_details.jobs_list %}
+                        <h3 class="tm-text-gray-dark mb-3">Image Processing</h3>
+                        <table class="table table-hover bg-transparent">
+                            <thead><tr>
+                                <th scope="col" class="tm-text-gray-dark">Engine</th>
+                                <th scope="col" class="tm-text-gray-dark">Created</th>
+                                <th scope="col" class="tm-text-gray-dark">Status</th>
+                                <!-- <th scope="col"></th> -->
+                            </tr>
+                            </thead>
+                            <tbody>
+                                {% for job in media_details.jobs_list %}
+                                <tr>
+                                    <td class="tm-text-primary">{{ job.insight_engine_id }}</td>
+                                    <td class="tm-text-primary">{{ job.start_time|date:"d/m/y H:i" }}</td>
+                                    <td class="tm-text-primary">{{ job.status.value }}</td>
+                                    {% comment %}
+                                    <!-- <td data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Search {{ key }}"><a href="{% url 'album_view' engine key 1 %}"><i class="fas fa-search"></i></a></td> -->
+                                    {% endcomment %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     {% endif %}
-                    {% endcomment %}
                 </div>
             </div>
         </div>
