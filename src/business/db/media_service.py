@@ -67,7 +67,7 @@ class MediaDBService:
 
         s.mount('http://', HTTPAdapter(max_retries=retries))
 
-        search_response = requests.get(get_all_engines_url,params=params)
+        search_response = s.get(get_all_engines_url,params=params)
 
         s.close()
 
@@ -92,7 +92,7 @@ class MediaDBService:
 
         s.mount('http://', HTTPAdapter(max_retries=retries))
 
-        search_response = requests.get(get_collection_by_name,params=kargs, headers=token.get_token_as_header())
+        search_response = s.get(get_collection_by_name,params=kargs, headers=token.get_token_as_header())
 
         s.close()
 
@@ -120,7 +120,7 @@ class MediaDBService:
 
         s.mount('http://', HTTPAdapter(max_retries=retries))
 
-        search_response = requests.get(get_collection_by_name, params=params, headers=token.get_token_as_header())
+        search_response = s.get(get_collection_by_name, params=params, headers=token.get_token_as_header())
 
         s.close()
 
@@ -151,7 +151,7 @@ class MediaDBService:
 
         s.mount('http://', HTTPAdapter(max_retries=retries))
         try:
-            search_response = requests.get(search_collection_url,params=kargs, headers=token.get_token_as_header())
+            search_response = s.get(search_collection_url,params=kargs, headers=token.get_token_as_header())
         except requests.exceptions.ConnectionError as err:
             logger.warning(str(err))
             s.close()
@@ -178,7 +178,7 @@ class MediaDBService:
 
         s.mount('http://', HTTPAdapter(max_retries=retries))
 
-        search_response = requests.get(insert_url,params=kargs, headers=token.get_token_as_header())
+        search_response = s.get(insert_url,params=kargs, headers=token.get_token_as_header())
 
         s.close()
 
@@ -216,7 +216,7 @@ class MediaDBService:
 
         s.mount('http://', HTTPAdapter(max_retries=retries))
 
-        search_response = requests.get(insert_url,params=kargs, headers=token.get_token_as_header())
+        search_response = s.get(insert_url,params=kargs, headers=token.get_token_as_header())
 
         s.close()
 
@@ -238,7 +238,7 @@ class MediaDBService:
 
         s.mount('http://', HTTPAdapter(max_retries=retries))
 
-        search_response = requests.get(insert_url,params=kargs, headers=token.get_token_as_header())
+        search_response = s.get(insert_url,params=kargs, headers=token.get_token_as_header())
 
         s.close()
 
