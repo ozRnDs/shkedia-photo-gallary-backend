@@ -1,9 +1,12 @@
 import traceback
 import os
+
 from pydantic import BaseModel
 from typing import List, Any
+from cachetools import cached, TTLCache
 from datetime import datetime, timedelta
 import time
+
 import pickle
 from math import ceil
 import logging
@@ -62,7 +65,7 @@ class MediaGalleryService():
         with open(local_cache_file_location, "wb") as file:
             pickle.dump(self.cache_object,file, protocol=pickle.HIGHEST_PROTOCOL)
             
-
+    @cached(cache=TTLCache(maxsize=10, ttl=timedelta(hours=1), timer=datetime.now))
     def get_collections_for_user(self, token, engine_type, page_number=0, page_size=16):
         # self.__refresh_cache__(token=token, user_id=user_id, engine_type)
         collections_results = self.media_db_service.search_collections(token=token,engine_name=engine_type,page_number=page_number, page_size=page_size)
@@ -70,11 +73,15 @@ class MediaGalleryService():
             return SearchResult(total_results_number=0,results=[])
         collections_results.results = [CollectionPreview(**collection_item) for collection_item in collections_results.results]
         for collection in collections_results.results:
-            collection_thumbnail = self.decrypt_service.decrypt(collection.media_key, {"thumbnail": collection.thumbnail})
-            collection_thumbnail = ImageProcessingService.get_image_base64(collection_thumbnail["thumbnail"])
-            collection.thumbnail = collection_thumbnail
+            try:
+                collection_thumbnail = self.decrypt_service.decrypt(collection.media_key, {"thumbnail": collection.thumbnail})
+                collection_thumbnail = ImageProcessingService.get_image_base64(collection_thumbnail["thumbnail"])
+                collection.thumbnail = collection_thumbnail
+            except Exception as err:
+                logger.warning("Failed to get the {collection.name} collection's thumbnail")
         return collections_results
 
+    @cached(cache=TTLCache(maxsize=10, ttl=timedelta(hours=1), timer=datetime.now))
     def get_collection_for_user(self,token,collection_name, engine_type, page_number=0, page_size=16):
         collection_details = self.media_db_service.get_collection_for_user(token=token,collection_name=collection_name, engine_name=engine_type)
         media_list = self.media_db_service.get_collection_media(token=token, collection_name=collection_name, engine_type=engine_type, page_number=page_number, page_size=page_size)
@@ -82,7 +89,7 @@ class MediaGalleryService():
         media_list = Page(page_number=0,items=media_list,number_of_pages=ceil(collection_size/page_size))
         return collection_details, media_list
         
-
+    @cached(cache=TTLCache(maxsize=10, ttl=timedelta(hours=1), timer=datetime.now))
     def get_page_content(self, items_list, page_number)-> Page:
         if len(items_list) == 0:
             return Page(page_number=0,items=[],number_of_pages=0)
@@ -98,15 +105,21 @@ class MediaGalleryService():
                     number_of_pages=number_of_pages,
                     items=items_list[start_index:end_index])
 
+    
     def decrypt_list_of_medias(self, medias_list: List[MediaThumbnail])-> List[MediaView]:
         decrypted_list = []
         for media in medias_list:
             decrypted_list.append(self.__decrypt_single_media(media))
         return decrypted_list
 
+    @cached(cache=TTLCache(maxsize=100, ttl=timedelta(hours=12), timer=datetime.now))
     def __decrypt_single_media(self, media: MediaThumbnail) -> MediaView:
-        image = self.decrypt_service.decrypt(media.media_key,{"image": media.media_thumbnail})
-        image = ImageProcessingService.get_image_base64(image["image"])
+        try:
+            image = self.decrypt_service.decrypt(media.media_key,{"image": media.media_thumbnail})
+            image = ImageProcessingService.get_image_base64(image["image"])
+        except Exception as err:
+            logger.warning(f"Failed to decrypt image {media.media_id}")
+            image=""
         return MediaView(thumbnail=image,**media.model_dump())
 
 

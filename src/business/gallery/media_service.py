@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 from pydantic import BaseModel
 from typing import Dict, List
 
@@ -51,6 +53,10 @@ class MediaViewService:
         return self.__group_data_by_engine__(insights_list=insights_list,jobs_list=jobs_list)
     
     def __decrypt_single_media(self, media: MediaThumbnail) -> MediaView:
-        image = self.decrypt_service.decrypt(media.media_key,{"image": media.media_thumbnail})
-        image = ImageProcessingService.get_image_base64(image["image"])
+        try:
+            image = self.decrypt_service.decrypt(media.media_key,{"image": media.media_thumbnail})
+            image = ImageProcessingService.get_image_base64(image["image"])
+        except Exception as err:
+            logger.warning(f"Failed to decrypt image {media.media_id}")
+            image=""
         return MediaView(thumbnail=image,**media.model_dump())
