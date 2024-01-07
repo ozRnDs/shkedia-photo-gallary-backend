@@ -1,3 +1,9 @@
+## 0.6.2 (2024-01-07)
+
+### Fix
+
+- **MediaViewService**: Fix error that deleted all insights beside the last one
+
 ## 0.6.1 (2024-01-07)
 
 ### Fix
