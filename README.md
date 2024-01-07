@@ -50,6 +50,23 @@ The component is responsibly to serve the entire system to the users. Mostly the
     docker compose --env-file ${GALLERY_ENV} up -d
     ```
 
+## Producation Deployment
+The deployment of this service is a bit tricky. The component is using static files served by seperate nginx. Although they come from here.
+1. Collecting static files  
+    On the main folder of the project run the following (Inside your development container)
+    ```bash
+    python src/manage.py collectstatic --noinput -i admin -i tiny_mce -i .scss
+    ```
+2. On your machine, run the deploy script.
+    ```bash
+    bash .autodevops/.cicd/quick_build_deploy.sh $ENVIRONMENT $STATIC_FILES_LOCATION
+    ```
+    The script bumps the version, builds an image and copies the collected static files to the desired location.
+3. Now deploy the nginx and make sure it serves the static files in the new location
+
+
+
+
 # Development
 ## Environment
 
