@@ -13,10 +13,11 @@ class InsightEngineService:
         self.db_media_service = db_media_service        
 
     @property
-    # @cached(cache=TTLCache(maxsize=4, ttl=timedelta(minutes=2), timer=datetime.now))
+    @cached(cache=TTLCache(maxsize=4, ttl=timedelta(minutes=1), timer=datetime.now))
     def engines(self) -> List[InsightEngineValues]:
         return self.db_media_service.get_all_engines(response_type=InsightEngineObjectEnum.InsightEngineValues)
 
+    @cached(cache=TTLCache(maxsize=4, ttl=timedelta(hours=12), timer=datetime.now))
     def get_engine_name_by_id(self, engine_id):
         for engine in self.engines:
             if engine.id ==engine_id:

@@ -51,7 +51,7 @@ class MediaViewService:
             engine_id = insights_list[0].insight_engine_id
             engine_name = self.engine_service.get_engine_name_by_id(engine_id)
             insight_name = insights_list[0].name
-            if not engine_id in temp_dict:
+            if not engine_name in temp_dict:
                 temp_dict[engine_name] = {}
             temp_dict[engine_name][insight_name] = insights_list
         for job in jobs_list:
