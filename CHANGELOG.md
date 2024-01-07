@@ -1,3 +1,42 @@
+## 0.6.0 (2024-01-07)
+
+### Feat
+
+- **Upload**: Create upload function and UI. Integrate with upload service, Added devices information to the request
+- **search_bar**: Add basic selections to navigate throught the collection
+- **media_view**: Add jobs details to the media view
+- **view_media**: Add grouped view insights and engines. Including collapsable tables
+- **bussiness/db**: Add InsightEngineService that holds the entire engines information
+- **view_media**: Add dynamic bounding box display
+- **view_media**: Get insights and jobs for media and display on media page
+
+### Fix
+
+- **MediaDBService**: Use the session with retry for the get operations
+- **InsightEngineService**: Add missing imports
+- **AuthService**: Fixtypo in the redirect to the login screen
+- **views/albums**: Catch ConnectionError
+- **AuthService**: Improve exceptions handling of invalid sessions and save current path to be used in the login page
+- **Token**: Add hash function to be used by TTLCache
+- **MediaDBService**: Convert request ConnectionError to global ConnectionError to be handled later
+- **InsightEngineService**: Fix get_engine_name_by_id. Return name instead of id
+
+### Refactor
+
+- **gallery/service**: Delete custom caching function
+- **base/views,base/templates**: Create BaseContext class to sturcture the data in the views
+- **view_media**: Improve the insights presentation
+- **MediaViewService,-InsightEngineService**: Add cache mechanism
+- **business/gallery**: Extract the functions that are used by the view_media to decoupled service
+- **views**: Delete unused class
+- **business/gallery**: Extract Page and MediaView classes from the service
+- **gallery/service**: Clean unused classes
+
+### Perf
+
+- **MediaGalleryService,-MediaViewService**: Add caching. Catch decrypt failure
+- **MediaDBService**: Add cache to get_all_engines
+
 ## 0.5.2 (2024-01-05)
 
 ### Refactor
