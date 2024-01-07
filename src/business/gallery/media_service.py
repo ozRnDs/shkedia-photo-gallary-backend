@@ -31,13 +31,14 @@ class MediaViewService:
         self.decrypt_service = decrypt_service
         self.engine_service=engine_service
 
-    @cached(cache=TTLCache(maxsize=100, ttl=timedelta(hours=1), timer=datetime.now))
+    # @cached(cache=TTLCache(maxsize=100, ttl=timedelta(hours=1), timer=datetime.now))
     def get_media_content(self, token, media_id, user_id) -> MediaView:
         # media_content = [media for media in self.cache_object[user_id].list_of_images if media.media_id==media_id][-1]
         # if media_content is None:
         #     raise Exception("Could find media")
         media = self.media_db_service.search_media(token=token,media_id=media_id,response_type=MediaObjectEnum.MediaThumbnail)
-        media = self.__decrypt_single_media(MediaThumbnail(**media.results[0]))
+        # media = self.__decrypt_single_media(MediaThumbnail(**media.results[0]))
+        media = MediaView(**media.results[0])
         media.user = self.user_db_service.search_user(token, search_field="user_id", search_value=media.owner_id)
         media.device = self.user_db_service.get_device(token, device_id=media.device_id)
         return media

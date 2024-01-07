@@ -10,9 +10,10 @@ class Page(BaseModel):
     number_of_pages: int
 
 class MediaView(MediaThumbnail):
-    thumbnail: str
+    thumbnail: str | None = None
     user: User | None = None
     device: Device | None = None
+    device_media_uri: str | None = None
 
     @property
     def canvas_thumbnail(self):

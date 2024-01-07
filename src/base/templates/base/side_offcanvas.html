@@ -23,7 +23,7 @@
         {% for item in canvas.nav_list %}
         <div class="container-fluid overflow-hidden" style="margin-bottom: 20px;">
             <figure class="effect-ming tm-video-item" style="margin-bottom: 0px;">
-                <img src="data:image/png;base64,{{ item.thumbnail }}" alt="Image" class="img-fluid">
+                <img src="{% url 'media_file' item.thumbnail %}" alt="Image" class="img-fluid">
                 <figcaption class="d-flex align-items-center justify-content-center">
                     <h2>{{ item.name }}</h2>
                     {% if canvas.view_type == "album" %}

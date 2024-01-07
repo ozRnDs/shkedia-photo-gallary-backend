@@ -1,3 +1,9 @@
+## 0.6.1 (2024-01-07)
+
+### Fix
+
+- **InsightEngineService**: Set the engines data cache to 2 minutes (instead of 12 hours)
+
 ## 0.6.0 (2024-01-07)
 
 ### Feat

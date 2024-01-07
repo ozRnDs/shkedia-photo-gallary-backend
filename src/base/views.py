@@ -1,3 +1,4 @@
+import io
 import traceback
 import logging
 logger = logging.getLogger(__name__)
@@ -5,13 +6,14 @@ logger = logging.getLogger(__name__)
 from typing import Dict, List
 
 from django.shortcuts import render
-from django.http import HttpResponse, HttpRequest, HttpResponseForbidden, HttpResponseNotFound, HttpResponseRedirect
+from django.http import HttpResponse, HttpRequest, HttpResponseForbidden, HttpResponseNotFound, HttpResponseRedirect, FileResponse
 from django.contrib import messages
+from django.utils import cache
 
 # import business.utils
 
 from business.config import app_config
-from business.gallery.service import MediaGalleryService ,SearchResult, Insight
+from business.gallery.service import MediaGalleryService ,SearchResult, Insight, MediaView
 from business.authentication.service import AuthService
 from business.db.media_service import MediaDBService
 from business.encryption.service import DecryptService
@@ -132,7 +134,7 @@ def view_album(request: HttpRequest, engine_type, collection_name, page_number):
                           content={
                             "engine_type": engine_type,
                             "album_name": collection.name,
-                            "media_list": gallery_service.decrypt_list_of_medias(page_object.items),                              
+                            "media_list": page_object.items # gallery_service.decrypt_list_of_medias(page_object.items),                              
                           }
                           )
 
@@ -162,7 +164,7 @@ def view_media(request, engine_type, collection_name, page_number, media_id):
                           upload_url=app_config.UPLOAD_URL,
                           canvas=BaseCanvas(
                               view_type="media",
-                              nav_list= gallery_service.decrypt_list_of_medias(nav_object.items)),
+                              nav_list= [MediaView(**single_item.model_dump(), thumbnail=single_item.media_id) for single_item in nav_object.items]),
                           search_needed=True,
                           content={
                             "media": media_item,
@@ -183,3 +185,11 @@ def about(request):
 @auth_service.is_authenticated()
 def about_creator(request):
     return render(request, 'base/about_creator.html', {})
+
+@auth_service.is_authenticated()
+def view_media_file(request, media_id):
+    temp_file = gallery_service.get_media(token=request.user.token_data.auth_token,media_id=media_id)
+
+    response =  FileResponse(io.BytesIO(temp_file), filename=f"media_id.jpg")
+    cache.patch_cache_control(response, max_age=31536000)
+    return response

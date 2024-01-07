@@ -13,7 +13,7 @@ import requests
 
 
 from business.authentication.models import Token
-from project_shkedia_models.media import MediaRequest, MediaDB, MediaObjectEnum, MediaThumbnail
+from project_shkedia_models.media import MediaRequest, MediaDB, MediaObjectEnum, MediaThumbnail, MediaMetadata
 from project_shkedia_models.search import SearchResult
 from project_shkedia_models.collection import CollectionPreview
 from project_shkedia_models.jobs import InsightJob
@@ -43,15 +43,28 @@ class MediaDBService:
             return MediaDB(**insert_response.json())
         raise Exception(insert_response.json()["detail"])
     
-    def get_media_by_id(self, token: Token, media_id) -> MediaDB:
+    @cached(cache=TTLCache(maxsize=100, ttl=timedelta(hours=12), timer=datetime.now))
+    def get_media_by_id(self, token: Token, media_id, **kargs):
         insert_url = self.service_url+"/v1/media/"+media_id
-        insert_response = requests.get(insert_url, headers=token.get_token_as_header())
+
+        s = requests.Session()
+
+        retries = Retry(total=5,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504])
+
+        s.mount('http://', HTTPAdapter(max_retries=retries))
+
+        insert_response = s.get(insert_url, headers=token.get_token_as_header(), params=kargs)
+
+
+        s.close()
 
         if insert_response.status_code == 200:
-            return MediaDB(**insert_response.json())
+            return insert_response.json()
         raise Exception(insert_response.json()["details"])
 
-    @cached(cache=TTLCache(maxsize=10, ttl=timedelta(hours=12), timer=datetime.now))
+
     def get_all_engines(self, response_type: InsightEngineObjectEnum=InsightEngineObjectEnum.InsightEngine):
         get_all_engines_url = self.service_url+"/v3/insights-engines"
 
@@ -81,7 +94,7 @@ class MediaDBService:
         raise Exception(search_response.json()["detail"])
 
 
-    def get_collection_media(self, token:Token, collection_name, engine_type, **kargs) -> List[MediaThumbnail]:
+    def get_collection_media(self, token:Token, collection_name, engine_type, **kargs) -> List[MediaMetadata]:
         get_collection_by_name = self.service_url+f"/v2/insights-engines/{engine_type}/collections/{collection_name}/media"
 
         s = requests.Session()
@@ -98,7 +111,7 @@ class MediaDBService:
 
         if search_response.status_code == 200:
             search_response = SearchResult(**search_response.json())
-            return [MediaThumbnail(**media_item) for media_item in search_response.results]
+            return [MediaMetadata(**media_item) for media_item in search_response.results]
         if search_response.status_code == 404:
             raise FileNotFoundError()
         if search_response.status_code == 401:

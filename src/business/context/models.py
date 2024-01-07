@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List, Union
 
 from business.db.insights_service import InsightEngineValues
-from business.gallery.models import MediaView
+from project_shkedia_models.media import MediaMetadata
 from business.gallery.service import CollectionPreview
 
 class PageMetadata(BaseModel):
@@ -15,7 +15,7 @@ class PageMetadata(BaseModel):
 
 class BaseCanvas(BaseModel):
     view_type: str
-    nav_list: Union[List[MediaView],List[CollectionPreview]]
+    nav_list: Union[List[MediaMetadata],List[CollectionPreview]]
 
 class BaseContext(BaseModel):
     navigator: List[InsightEngineValues] | None = None

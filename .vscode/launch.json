@@ -26,7 +26,7 @@
                 "PRIVATE_KEY_LOCATION": "/temp/data",
                 "LOCAL_CACHE_LOCATION": "${workspaceFolder}/.local/albums_list.pickle",
                 "MEDIA_DB_HOST": "10.0.0.5",
-                "MEDIA_DB_PORT": "4431",
+                "MEDIA_DB_PORT": "26000",
                 "MEDIA_REPO_HOST": "10.0.0.5",
                 "MEDIA_REPO_PORT": "4432",
                 "USER_DB_HOST": "10.0.0.5",

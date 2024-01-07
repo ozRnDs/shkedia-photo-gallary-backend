@@ -19,7 +19,7 @@
     
         <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 col-12 mb-5">
             <figure class="effect-ming tm-video-item">
-                <img src="data:image/png;base64,{{ album.thumbnail }}" alt="Image" class="img-fluid">
+                <img src="{% url 'media_file' album.thumbnail %}" alt="Image" class="img-fluid">
                 <figcaption class="d-flex align-items-center justify-content-center">
                     <h2>{{ album.name }}</h2>
                     <a href="{% url 'album_view' content.engine_type album.name 1 %}">View more</a>
