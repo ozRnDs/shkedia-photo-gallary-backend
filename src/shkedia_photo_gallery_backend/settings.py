@@ -27,6 +27,7 @@ SECRET_KEY = 'django-insecure-qxmoq(v5zugq-q3b_i!c-hdwr7@b733-w3bps_7jtlrk*76xa1
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = app_config.DEBUG
 
+STATIC_ROOT=f"{os.getcwd()}/.local/static"
 
 CSRF_TRUSTED_ORIGINS = [f"https://{app_config.ALLOWED_HOST}"]
 
