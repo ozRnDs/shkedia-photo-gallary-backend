@@ -87,6 +87,7 @@
                                             <tr>
                                                 <th scope="col" class="tm-text-gray-light">ID</th>
                                                 <th scope="col" class="tm-text-gray-light">Status</th>
+                                                <th scope="col" class="tm-text-gray-light">Prob</th>
                                                 <th scope="col" class="tm-text-gray-light"></th>
                                             </tr>
                                         </thead>
@@ -95,6 +96,7 @@
                                             <tr>
                                                 <td>{{ forloop.counter }}</td>
                                                 <td>{{ insight.status }}</td>
+                                                <td>{{ insight.prob|floatformat:2 }}</td>
                                                 <td>
                                                 {% if insight.bounding_box %}
                                                     <i class="far fa-eye-slash" id="eye-{{ insight.id }}"
