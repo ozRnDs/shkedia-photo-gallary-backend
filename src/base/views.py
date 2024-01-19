@@ -100,7 +100,7 @@ def albums(request: HttpRequest, engine_type, page_number):
         return albums(request, album_list.number_of_pages)
 
     context = BaseContext(page=PageMetadata(current_page=page_number,number_of_pages=album_list.number_of_pages),
-                          navigator=engine_service.engines,
+                          navigator=gallery_service.get_users_collections_list(token=request.user.token_data.auth_token),
                           search_needed=True,
                           upload_url=app_config.UPLOAD_URL,
                           content={
@@ -125,7 +125,7 @@ def view_album(request: HttpRequest, engine_type, collection_name, page_number):
         return HttpResponseRedirect(redirect_to="/login")
     
     context = BaseContext(page=PageMetadata(current_page=page_number, number_of_pages=page_object.number_of_pages),
-                          navigator=engine_service.engines,
+                          navigator=gallery_service.get_users_collections_list(token=request.user.token_data.auth_token),
                           upload_url=app_config.UPLOAD_URL,
                           canvas=BaseCanvas(
                               view_type="album",
@@ -160,7 +160,7 @@ def view_media(request, engine_type, collection_name, page_number, media_id):
         logger.warning(f"Failed to get insights: {str(err)}")
 
     context = BaseContext(page=PageMetadata(current_page=page_number),
-                          navigator=engine_service.engines,
+                          navigator=gallery_service.get_users_collections_list(token=request.user.token_data.auth_token),
                           upload_url=app_config.UPLOAD_URL,
                           canvas=BaseCanvas(
                               view_type="media",

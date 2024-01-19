@@ -2,7 +2,7 @@ import traceback
 import os
 
 from pydantic import BaseModel
-from typing import List, Any
+from typing import List, Any, Dict
 from cachetools import cached, TTLCache
 from datetime import datetime, timedelta
 import time
@@ -12,7 +12,7 @@ from math import ceil
 import logging
 logger = logging.getLogger(__name__)
 
-from project_shkedia_models.collection import CollectionPreview
+from project_shkedia_models.collection import CollectionPreview, CollectionBasic
 
 from business.image_processing.service import ImageProcessingService
 from business.db.media_service import MediaDBService, MediaDB, SearchResult, MediaObjectEnum, MediaThumbnail, Insight, InsightJob
@@ -106,4 +106,14 @@ class MediaGalleryService():
         image = self.decrypt_service.decrypt(media_object.media_key,{"image": media_object.media_thumbnail})["image"]
 
         return image
+
+    def get_users_collections_list(self,token) -> Dict[str,List[str]]:
+        collections_list: List[CollectionBasic] = self.media_db_service.get_users_collections_list(token)
+        collection_dict = {}
+        for collection_item in collections_list:
+            if not collection_item.engine_name in collection_dict:
+                collection_dict[collection_item.engine_name] = []
+            collection_dict[collection_item.engine_name].append(collection_item.name)
+        collection_dict_temp = {key:value.sort() for key, value in collection_dict.items()}
+        return collection_dict
 

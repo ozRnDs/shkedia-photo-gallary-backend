@@ -15,7 +15,7 @@ import requests
 from business.authentication.models import Token
 from project_shkedia_models.media import MediaRequest, MediaDB, MediaObjectEnum, MediaThumbnail, MediaMetadata
 from project_shkedia_models.search import SearchResult
-from project_shkedia_models.collection import CollectionPreview
+from project_shkedia_models.collection import CollectionPreview, CollectionObjectEnum
 from project_shkedia_models.jobs import InsightJob
 from project_shkedia_models.insights import Insight, InsightEngineObjectEnum
 
@@ -63,6 +63,34 @@ class MediaDBService:
         if insert_response.status_code == 200:
             return insert_response.json()
         raise Exception(insert_response.json()["details"])
+
+    def get_users_collections_list(self,token, response_type: CollectionObjectEnum=CollectionObjectEnum.CollectionBasic):
+        get_all_engines_url = self.service_url+"/v2/collections"
+
+        params = {
+            "response_type" : response_type.value
+        }
+
+        s = requests.Session()
+
+        retries = Retry(total=5,
+            backoff_factor=1,
+            status_forcelist=[429, 500, 502, 503, 504])
+
+        s.mount('http://', HTTPAdapter(max_retries=retries))
+
+        search_response = s.get(get_all_engines_url,params=params, headers=token.get_token_as_header())
+
+        s.close()
+
+        if search_response.status_code == 200:
+            response_model = getattr(sys.modules["project_shkedia_models.collection"], response_type.value)
+            return [response_model(**engine_item) for engine_item in search_response.json()]
+        if search_response.status_code == 404:
+            raise FileNotFoundError()
+        if search_response.status_code == 401:
+            raise PermissionError(search_response.json()["detail"])
+        raise Exception(search_response.json()["detail"])
 
 
     def get_all_engines(self, response_type: InsightEngineObjectEnum=InsightEngineObjectEnum.InsightEngine):

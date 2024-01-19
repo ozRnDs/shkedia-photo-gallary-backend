@@ -1,7 +1,8 @@
 from pydantic import BaseModel
-from typing import List, Union
+from typing import List, Union, Dict
 
 from business.db.insights_service import InsightEngineValues
+from project_shkedia_models.collection import CollectionBasic
 from project_shkedia_models.media import MediaMetadata
 from business.gallery.service import CollectionPreview
 
@@ -18,10 +19,9 @@ class BaseCanvas(BaseModel):
     nav_list: Union[List[MediaMetadata],List[CollectionPreview]]
 
 class BaseContext(BaseModel):
-    navigator: List[InsightEngineValues] | None = None
+    navigator: Dict[str,List[str]] | None = None
     canvas: BaseCanvas | None = None
     page: PageMetadata | None = None
     upload_url: str = ""
     search_needed: bool = True
     content: dict = {}
-

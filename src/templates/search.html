@@ -6,15 +6,15 @@
     {% if search_needed %}
     <div class="col-8 d-flex flex-column justify-content-center align-items-center">
             <select id="engine_selector" name="engine_type" class="tm-search-input col-6 m-2" onchange="updateChild()">
-                {% for item in navigator %}
-                    <option value="{{ item.name }}">{{ item.name|capfirst }}</option>
+                {% for engine_name,_ in navigator.items %}
+                    <option value="{{ engine_name }}">{{ engine_name|capfirst }}</option>
                 {% endfor %}
             </select>
             <select id="collection_selector" name="collection_name" class="tm-search-input col-6 m-2">
                         <option value="" engine_name="">All</option>
-                {% for item in navigator %}
-                    {% for insight in item.insights_names %}
-                        <option value="{{ insight }}" engine_name="{{ item.name }}">{{ insight|lower|capfirst }}</option>
+                {% for engine_name,items in navigator.items %}
+                    {% for insight in items %}
+                        <option value="{{ insight }}" engine_name="{{ engine_name }}">{{ insight|lower|capfirst }}</option>
                     {% endfor %}
                 {% endfor %}
             </select>

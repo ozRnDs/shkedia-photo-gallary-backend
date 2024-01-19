@@ -38,6 +38,8 @@ class MediaViewService:
         #     raise Exception("Could find media")
         media = self.media_db_service.search_media(token=token,media_id=media_id,response_type=MediaObjectEnum.MediaThumbnail)
         # media = self.__decrypt_single_media(MediaThumbnail(**media.results[0]))
+        if len(media.results)==0:
+            raise FileNotFoundError("Couldn't find media")
         media = MediaView(**media.results[0])
         media.user = self.user_db_service.search_user(token, search_field="user_id", search_value=media.owner_id)
         media.device = self.user_db_service.get_device(token, device_id=media.device_id)
@@ -62,8 +64,8 @@ class MediaViewService:
         insights_list = self.media_db_service.search_insights(token,media_id=media_id,response_type=InsightObjectEnum.Insight)
         jobs_list = self.media_db_service.search_jobs(token, media_id=media_id)
         jobs_list = [job_item for job_item in jobs_list]
-        return self.__group_data_by_engine__(insights_list=insights_list,jobs_list=jobs_list)
-    
+        return self.__group_data_by_engine__(insights_list=insights_list,jobs_list=jobs_list)      
+
     @cached(cache=TTLCache(maxsize=100, ttl=timedelta(hours=12), timer=datetime.now))
     def __decrypt_single_media(self, media: MediaThumbnail) -> MediaView:
         try:
